@@ -11,8 +11,8 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
       == "main" &&
       (".tekton/***".pathChanged() ||
-      "./bpfman-catalog/Dockerfile".pathChanged() ||
-      "./bpfman-catalog/auto-generated/catalog/released.yaml".pathChanged())
+      "Dockerfile".pathChanged() ||
+      "auto-generated/catalog/released.yaml".pathChanged())
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: fbc-4-18
@@ -35,7 +35,7 @@ spec:
   - name: opm-image
     value: brew.registry.redhat.io/rh-osbs/openshift-ose-operator-registry-rhel9:v4.18
   - name: index-file
-    value: "./bpfman-catalog/auto-generated/catalog/released.yaml"
+    value: auto-generated/catalog/released.yaml"
   pipelineRef:
     name: build-fbc-pipeline
   workspaces:

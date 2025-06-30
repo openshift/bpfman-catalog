@@ -50,7 +50,7 @@ spec:
     description: Base image to use to build the File Based Catalog
     name: opm-image
     type: string
-  - default: "./bpfman-catalog/auto-generated/catalog/released.yaml"
+  - default: auto-generated/catalog/released.yaml"
     description: Catalog index file to use for this build
     name: index-file
     type: string
