@@ -18,14 +18,14 @@ RUN opm serve /configs --cache-dir=/tmp/cache --cache-only
 # in the image
 LABEL operators.operatorframework.io.index.configs.v1=/configs
 
-LABEL com.redhat.component="network-observability-operator-catalog-container"
-LABEL name="network-observability-operator-catalog"
-LABEL io.k8s.display-name="Network Observability Operator Catalog"
-LABEL io.k8s.description="Network Observability Operator Catalog"
-LABEL summary="Network Observability Operator Catalog"
+LABEL com.redhat.component="bpfman-operator-catalog-container"
+LABEL name="bpfman-operator-catalog"
+LABEL io.k8s.display-name="BPFMan Operator Catalog"
+LABEL io.k8s.description="BPFMan Operator Catalog"
+LABEL summary="BPFMan Operator Catalog"
 LABEL maintainer="support@redhat.com"
-LABEL io.openshift.tags="network-observability-operator-catalog"
+LABEL io.openshift.tags="bpfman-operator-catalog"
 LABEL upstream-vcs-ref="$COMMIT"
 LABEL upstream-vcs-type="git"
-LABEL description="Network Observability operator for OpenShift."
+LABEL description="BPFMan operator for OpenShift."
 LABEL version="$BUILDVERSION"
