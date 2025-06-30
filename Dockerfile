@@ -5,7 +5,7 @@ ARG COMMIT
 ARG BUILDVERSION="1.9.0"
 ARG INDEX_FILE=./auto-generated/catalog/released.yaml
 #This files will be copied twice but it is not possible to COPY if not empty
-COPY $INDEX_FILE /configs/netobserv-operator/index.yaml
+COPY $INDEX_FILE /configs/bpfman-operator/index.yaml
 RUN ls -R /configs
 
 # Configure the entrypoint and command

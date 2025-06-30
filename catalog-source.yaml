@@ -1,13 +1,13 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
-  name: noo-dev-catalog
+  name: bpfman-dev-catalog
   namespace: openshift-marketplace
 spec:
   sourceType: grpc
-  image: quay.io/netobserv/bpfman-operator-catalog:latest
-  displayName: Network observability development catalog
-  publisher: Me
+  image: quay.io/bpfman/bpfman-operator-catalog:latest
+  displayName: BPFMan Operator development catalog
+  publisher: BPFMan
   updateStrategy:
     registryPoll:
       interval: 1m

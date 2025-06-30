@@ -1,6 +1,6 @@
-# Netobserv Catalog
+# BPFMan Operator Catalog
 
-This repository build the Netobserv OLM catalog used to release new version of Openshift Network Observability Operator.
+This repository builds the BPFMan OLM catalog used to release new versions of the OpenShift eBPF Manager Operator.
 
 To generate all catalogs from template:
 ```bash
