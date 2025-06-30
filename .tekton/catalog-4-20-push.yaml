@@ -11,10 +11,10 @@ metadata:
       == "main" && (".tekton/***".pathChanged() || "./bpfman-catalog/Dockerfile".pathChanged() || "./bpfman-catalog/templates/next-release.Dockerfile-args".pathChanged() || "./bpfman-catalog/auto-generated/catalog/released.yaml".pathChanged())
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: catalog-4-20
-    appstudio.openshift.io/component: catalog-4-20
+    appstudio.openshift.io/application: fbc-4-20
+    appstudio.openshift.io/component: ocp-bpfman-operator-catalog-ocp4-20
     pipelines.appstudio.openshift.io/type: build
-  name: catalog-4-20-on-push
+  name: ocp-bpfman-operator-catalog-ocp4-20-on-push
   namespace: ocp-bpfman-tenant
 spec:
   params:
@@ -23,7 +23,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/ocp-bpfman-tenant/catalog-4-20:latest
+    value: quay.io/redhat-user-workloads/ocp-bpfman-tenant/ocp-bpfman-operator-catalog-ocp4-20:latest
   - name: build-args-file
     value: templates/next-release.Dockerfile-args
   - name: dockerfile

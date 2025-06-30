@@ -14,10 +14,10 @@ metadata:
       "./bpfman-catalog/auto-generated/catalog/y-stream.yaml".pathChanged())
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: catalog-ystream
-    appstudio.openshift.io/component: catalog-ystream
+    appstudio.openshift.io/application: fbc-ystream
+    appstudio.openshift.io/component: ocp-bpfman-operator-catalog-ocpystream
     pipelines.appstudio.openshift.io/type: build
-  name: catalog-ystream-on-push
+  name: ocp-bpfman-operator-catalog-ocpystream-on-push
   namespace: ocp-bpfman-tenant
 spec:
   params:
@@ -26,7 +26,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/ocp-bpfman-tenant/catalog-ystream:latest
+    value: quay.io/redhat-user-workloads/ocp-bpfman-tenant/ocp-bpfman-operator-catalog-ocpystream:latest
   - name: build-args-file
     value: templates/y-stream.Dockerfile-args
   - name: dockerfile

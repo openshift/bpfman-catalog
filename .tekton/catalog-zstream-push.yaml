@@ -14,10 +14,10 @@ metadata:
       "./bpfman-catalog/auto-generated/catalog/z-stream.yaml".pathChanged())
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: catalog-zstream
-    appstudio.openshift.io/component: catalog-zstream
+    appstudio.openshift.io/application: fbc-zstream
+    appstudio.openshift.io/component: ocp-bpfman-operator-catalog-ocpzstream
     pipelines.appstudio.openshift.io/type: build
-  name: catalog-zstream-on-push
+  name: ocp-bpfman-operator-catalog-ocpzstream-on-push
   namespace: ocp-bpfman-tenant
 spec:
   params:
@@ -26,7 +26,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/ocp-bpfman-tenant/catalog-zstream:latest
+    value: quay.io/redhat-user-workloads/ocp-bpfman-tenant/ocp-bpfman-operator-catalog-ocpzstream:latest
   - name: build-args-file
     value: templates/z-stream.Dockerfile-args
   - name: dockerfile
