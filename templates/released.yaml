@@ -1,0 +1,79 @@
+schema: olm.template.basic
+entries:
+  - schema: olm.package
+    name: bpfman-operator
+    defaultChannel: stable
+    icon:
+      base64data:
+        PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI2LjAuMiwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMDAgMTAwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6dXJsKCNTVkdJRF8xXyk7fQoJLnN0MXtmaWxsOiNGRkZGRkY7fQoJLnN0MntvcGFjaXR5OjAuNjt9Cgkuc3Qze29wYWNpdHk6MC41O30KCS5zdDR7b3BhY2l0eTowLjQ7fQo8L3N0eWxlPgo8Zz4KCTxnPgoJCTxnPgoJCQk8cmFkaWFsR3JhZGllbnQgaWQ9IlNWR0lEXzFfIiBjeD0iMTQuNzc1OCIgY3k9Ii0yLjk3NzEiIHI9IjkxLjYyNyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgoJCQkJPHN0b3AgIG9mZnNldD0iMCIgc3R5bGU9InN0b3AtY29sb3I6IzNDM0ZBNiIvPgoJCQkJPHN0b3AgIG9mZnNldD0iMSIgc3R5bGU9InN0b3AtY29sb3I6IzNCMDM0MCIvPgoJCQk8L3JhZGlhbEdyYWRpZW50PgoJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNTAsOTljLTEzLjMsMC0yNS40LTUuMy0zNC4yLTEzLjlDNi43LDc2LjIsMSw2My43LDEsNTBDMSwyMi45LDIyLjksMSw1MCwxYzEzLjcsMCwyNi4yLDUuNywzNS4xLDE0LjgKCQkJCUM5My43LDI0LjYsOTksMzYuNyw5OSw1MEM5OSw3Ny4xLDc3LjEsOTksNTAsOTl6Ii8+CgkJPC9nPgoJCTxnPgoJCQk8Y2lyY2xlIGNsYXNzPSJzdDEiIGN4PSIzNy41IiBjeT0iODEuOSIgcj0iNSIvPgoJCTwvZz4KCQk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNNDguNiw5MS45bDE4LjgtNDMuM2MtMi41LTAuMS01LTAuNy03LjItMkwzMy4yLDY4LjJsMS40LTEuOGwyMC0yNS4xYy0xLjUtMi40LTIuMy01LjEtMi4zLTcuOUw5LDUyLjIKCQkJbDQ3LjYtMjkuOWwwLDBjMC4xLTAuMSwwLjItMC4yLDAuMi0wLjJjNi4xLTYuMSwxNS45LTYuMSwyMiwwbDAuMSwwLjFjNiw2LjEsNiwxNS45LTAuMSwyMS45Yy0wLjEsMC4xLTAuMiwwLjItMC4yLDAuMmwwLDAKCQkJTDQ4LjYsOTEuOXoiLz4KCQk8ZyBjbGFzcz0ic3QyIj4KCQkJPGNpcmNsZSBjbGFzcz0ic3QxIiBjeD0iNTAuMyIgY3k9IjE0LjciIHI9IjMuMSIvPgoJCTwvZz4KCQk8ZyBjbGFzcz0ic3QzIj4KCQkJPGNpcmNsZSBjbGFzcz0ic3QxIiBjeD0iMjcuNyIgY3k9IjU4IiByPSIxLjciLz4KCQk8L2c+CgkJPGc+CgkJCTxjaXJjbGUgY2xhc3M9InN0MSIgY3g9Ijc3LjQiIGN5PSI2OS4zIiByPSIxLjciLz4KCQk8L2c+CgkJPGc+CgkJCTxjaXJjbGUgY2xhc3M9InN0MSIgY3g9IjE2LjMiIGN5PSIzNi42IiByPSIxLjciLz4KCQk8L2c+CgkJPGcgY2xhc3M9InN0NCI+CgkJCTxjaXJjbGUgY2xhc3M9InN0MSIgY3g9IjYzLjciIGN5PSI4NS45IiByPSIyLjIiLz4KCQk8L2c+CgkJPGc+CgkJCTxjaXJjbGUgY2xhc3M9InN0MSIgY3g9IjI5LjQiIGN5PSIxOS42IiByPSI0LjgiLz4KCQk8L2c+CgkJPGcgY2xhc3M9InN0MyI+CgkJCTxjaXJjbGUgY2xhc3M9InN0MSIgY3g9Ijg4IiBjeT0iNTAiIHI9IjQuOCIvPgoJCTwvZz4KCTwvZz4KPC9nPgo8L3N2Zz4K
+      mediatype: image/svg+xml
+  - schema: olm.channel
+    package: bpfman-operator
+    name: stable
+    entries:
+      - name: bpfman-operator.v1.0.0-202301070345
+      - name: bpfman-operator.v1.1.0-202302110050
+        replaces: bpfman-operator.v1.0.0-202301070345
+      - name: bpfman-operator.v1.2.0
+        replaces: bpfman-operator.v1.1.0-202302110050
+      - name: bpfman-operator.v1.3.0
+        replaces: bpfman-operator.v1.2.0
+      - name: bpfman-operator.v1.4.0
+        replaces: bpfman-operator.v1.3.0
+      - name: bpfman-operator.v1.4.1
+        replaces: bpfman-operator.v1.4.0
+      - name: bpfman-operator.v1.4.2
+        replaces: bpfman-operator.v1.4.1
+      - name: bpfman-operator.v1.5.0
+        replaces: bpfman-operator.v1.4.2
+      - name: bpfman-operator.v1.6.0
+        replaces: bpfman-operator.v1.5.0
+      - name: bpfman-operator.v1.6.1
+        replaces: bpfman-operator.v1.6.0
+      - name: bpfman-operator.v1.6.2
+        replaces: bpfman-operator.v1.6.1
+      - name: bpfman-operator.v1.7.0
+        replaces: bpfman-operator.v1.6.2
+      - name: bpfman-operator.v1.8.0
+        replaces: bpfman-operator.v1.7.0
+      - name: bpfman-operator.v1.8.1
+        replaces: bpfman-operator.v1.8.0
+  - schema: olm.channel
+    package: bpfman-operator
+    name: v1.0.x
+    entries:
+      - name: bpfman-operator.v1.0.0-202301070345
+      - name: bpfman-operator.v1.1.0-202302110050
+        replaces: bpfman-operator.v1.0.0-202301070345
+      - name: bpfman-operator.v1.2.0
+        replaces: bpfman-operator.v1.1.0-202302110050
+      - name: bpfman-operator.v1.3.0
+        replaces: bpfman-operator.v1.2.0
+  - schema: olm.bundle          # 1.0.0
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:04175cc31fb28069f75e5043fad4ae86ccb471ed13b63c6e6aa19a295071e9a6
+  - schema: olm.bundle          # 1.1.0
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:757ae641f759f0e62b72947321df4f03430f74917f65c4d04f7f8e67ff7ccca1
+  - schema: olm.bundle          # 1.2.0
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:9ba226d0207edd7c9173333647353d3a7a0b5bfc32feb60ca5749dd6dc190c28
+  - schema: olm.bundle          # 1.3.0
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:b03f4e88ab1fed4744356a584d673fb2fdb15de7e1de7786bdd222b853690670
+  - schema: olm.bundle          # 1.4.0
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:25dfc5ecfc1614d67a9768b8cebb58367cac16c5e541646bb2dc13d75c705bdd
+  - schema: olm.bundle          # 1.4.1
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:6f998bb3b7d5311d8e74b25f8fcfe4ae65897270da3c0763ca2cb1d763135bc4
+  - schema: olm.bundle          # 1.4.2
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:dc8f77f41b077986639b3f594f9e5eb3bf56dad90bed1927921f973c4171ba68
+  - schema: olm.bundle          # 1.5.0
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:c97aff3b0ed506b2a1e34c1b22878dc42c6ef3ebf03b73147e8879e23ab5f8af
+  - schema: olm.bundle          # 1.6.0
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:30868483bc25d1a7c280f05ef84659e390b568422b205fffe12c3e15d8272c92
+  - schema: olm.bundle          # 1.6.1
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:814737b3cca4b3e02fbf6750be08b93a6094ecb1457820619d3b9ee33900284c
+  - schema: olm.bundle          # 1.6.2
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:f660759b145bd0053ac756def298ae9a3727d84685dc06cd3ee9bbbaaa68971a
+  - schema: olm.bundle          # 1.7.0
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:3a3c70c990bd3a012453857698433d674b98445e55cc9c5c4ed38eea29eb82b1
+  - schema: olm.bundle          # 1.8.0
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:0f0835291ec18f101d3f300dea94e2c56348e1c737dfb4fb14484cb0de1ddf6a
+  - schema: olm.bundle          # 1.8.1
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:abf372f07ca49997f9298c73820542f001327680452f87f7d594e532f794dd23
