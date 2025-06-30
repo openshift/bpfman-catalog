@@ -1,0 +1,25 @@
+---
+apiVersion: operator.openshift.io/v1alpha1
+kind: ImageDigestMirrorSet
+metadata:
+  name: example-mirror-set
+spec:
+  imageDigestMirrors:
+    - mirrors:
+      - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-zstream
+      source: registry.redhat.io/bpfman/bpfman-rhel9-operator
+    - mirrors:
+      - quay.io/redhat-user-workloads/ocp-bpfman-tenant/flowlogs-pipeline-zstream
+      source: registry.redhat.io/bpfman/bpfman-flowlogs-pipeline-rhel9
+    - mirrors:
+      - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-ebpf-agent-zstream
+      source: registry.redhat.io/bpfman/bpfman-ebpf-agent-rhel9
+    - mirrors:
+      - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-console-plugin-zstream
+      source: registry.redhat.io/bpfman/bpfman-console-plugin-rhel9
+    - mirrors:
+      - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-cli-zstream
+      source: registry.redhat.io/bpfman/bpfman-cli-rhel9
+    - mirrors:
+      - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-zstream
+      source: registry.redhat.io/bpfman/bpfman-operator-bundle

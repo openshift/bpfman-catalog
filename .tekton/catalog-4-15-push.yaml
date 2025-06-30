@@ -1,0 +1,53 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    build.appstudio.openshift.io/repo: https://github.com/openshift/bpfman-operator?rev={{revision}}
+    build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/target_branch: '{{target_branch}}'
+    pipelinesascode.tekton.dev/cancel-in-progress: "false"
+    pipelinesascode.tekton.dev/max-keep-runs: "3"
+    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
+      == "main" &&
+      (".tekton/***".pathChanged() ||
+      "./bpfman-catalog/Dockerfile".pathChanged() ||
+      "./bpfman-catalog/auto-generated/legacy-catalog/released.yaml".pathChanged())
+  creationTimestamp: null
+  labels:
+    appstudio.openshift.io/application: catalog-4-15
+    appstudio.openshift.io/component: catalog-4-15
+    pipelines.appstudio.openshift.io/type: build
+  name: catalog-4-15-on-push
+  namespace: ocp-bpfman-tenant
+spec:
+  params:
+  - name: git-url
+    value: '{{source_url}}'
+  - name: revision
+    value: '{{revision}}'
+  - name: output-image
+    value: quay.io/redhat-user-workloads/ocp-bpfman-tenant/catalog-4-15:latest
+  - name: dockerfile
+    value: Dockerfile
+  - name: opm-image
+    value: brew.registry.redhat.io/rh-osbs/openshift-ose-operator-registry-rhel9:v4.15
+  - name: index-file
+    value: "./bpfman-catalog/auto-generated/legacy-catalog/released.yaml"
+  pipelineRef:
+    name: build-fbc-pipeline
+  workspaces:
+  - name: workspace
+    volumeClaimTemplate:
+      metadata:
+        creationTimestamp: null
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+      status: {}
+  - name: git-auth
+    secret:
+      secretName: '{{ git_auth_secret }}'
+status: {}
