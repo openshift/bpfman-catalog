@@ -1,18 +1,9 @@
 approvers:
-- jotak
-- jpinsonneau
-- msherif1234
+- frobware
+- dave-tucker
 - OlivierCazade
-- eranra
-- KalmanMeth
-- ronensc
 options: {}
 reviewers:
-- jotak
-- jpinsonneau
-- msherif1234
+- frobware
+- dave-tucker
 - OlivierCazade
-- stleerh
-- eranra
-- KalmanMeth
-- ronensc
