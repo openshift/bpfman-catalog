@@ -1,0 +1,13 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: bpfman-dev-catalog
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: quay.io/bpfman/bpfman-operator-catalog:latest
+  displayName: BPFMan development catalog
+  publisher: Me
+  updateStrategy:
+    registryPoll:
+      interval: 1m
