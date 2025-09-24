@@ -1,4 +1,4 @@
-FROM quay.io/operator-framework/opm:v1.54.0
+FROM quay.io/operator-framework/opm:v1.59.0
 
 ARG INDEX_FILE=./auto-generated/catalog/dev.yaml
 COPY $INDEX_FILE /configs/bpfman-operator/index.yaml
