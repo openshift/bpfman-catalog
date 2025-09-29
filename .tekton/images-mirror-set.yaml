@@ -1,0 +1,28 @@
+---
+apiVersion: config.openshift.io/v1
+kind: ImageDigestMirrorSet
+metadata:
+  name: bpfman-catalog-mirror-set
+spec:
+  imageDigestMirrors:
+    # Mirror for the catalog images themselves
+    - source: registry.redhat.io/bpfman/bpfman-operator-catalog
+      mirrors:
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/catalog-ystream
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/catalog-zstream
+    # Mirror for the bpfman-agent image referenced in bundles
+    - source: registry.redhat.io/bpfman/bpfman-agent
+      mirrors:
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-agent-ystream
+    # Mirror for the bpfman-operator bundle
+    - source: registry.redhat.io/bpfman/bpfman-operator-bundle
+      mirrors:
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream
+    # Mirror for the bpfman-operator image
+    - source: registry.redhat.io/bpfman/bpfman-rhel9-operator
+      mirrors:
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-ystream
+    # Mirror for the bpfman daemon image
+    - source: registry.redhat.io/bpfman/bpfman
+      mirrors:
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-daemon-ystream
