@@ -127,6 +127,6 @@ all: help ## Default target: display help.
 .PHONY: help
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make <target>\n\n"} \
-		/^[a-zA-Z_0-9-]+:.*?##/ { printf "  %-25s %s\n", $$1, $$2 } \
+		/^[a-zA-Z_0-9-]+:.*?##/ { printf "  %-28s %s\n", $$1, $$2 } \
 		/^##@/ { printf "\n%s\n", substr($$0, 5) }' \
 		$(MAKEFILE_LIST)
