@@ -29,6 +29,12 @@ spec:
     - linux/x86_64
   - name: dockerfile
     value: Dockerfile
+  - name: build-args-file
+    value: templates/y-stream.Dockerfile-args
+  - name: build-args
+    value:
+    - "BASE_IMAGE=registry.redhat.io/openshift4/ose-operator-registry-rhel9:v4.20"
+    - "INDEX_FILE=./auto-generated/catalog/y-stream.yaml"
   pipelineRef:
     name: build-fbc-pipeline
   taskRunTemplate:
