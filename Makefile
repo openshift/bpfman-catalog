@@ -2,6 +2,9 @@
 
 IMAGE ?= quay.io/$(USER)/bpfman-operator-catalog:latest
 BUILD_STREAM ?= dev
+BASE_IMAGE ?= registry.redhat.io/openshift4/ose-operator-registry-rhel9:v4.20
+BUILDVERSION ?= 4.20.0
+COMMIT ?= $(shell git rev-parse HEAD)
 
 # Image building tool - podman only for catalog generation
 OCI_BIN_PATH := $(shell which podman)
@@ -90,7 +93,7 @@ generate-catalogs-container: | auto-generated/catalog ## Generate catalogs using
 
 .PHONY: build-image
 build-image: ## Build catalog container image.
-	$(OCI_BIN) build --build-arg INDEX_FILE="./auto-generated/catalog/$(BUILD_STREAM).yaml" -t $(IMAGE) -f Dockerfile .
+	$(OCI_BIN) build --build-arg INDEX_FILE="./auto-generated/catalog/$(BUILD_STREAM).yaml" --build-arg BASE_IMAGE="$(BASE_IMAGE)" --build-arg COMMIT="$(COMMIT)" --build-arg BUILDVERSION="$(BUILDVERSION)" -t $(IMAGE) -f Dockerfile .
 
 .PHONY: push-image
 push-image: ## Push catalog container image.
