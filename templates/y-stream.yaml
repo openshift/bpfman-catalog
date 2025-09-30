@@ -9,5 +9,5 @@ entries:
     entries:
       - name: bpfman-operator.v0.5.7-dev
   - schema: olm.bundle
-    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:36922ea0b333bf60bfd358425681c472db07a99dd07c929383ee3bcc5e93c19f
+    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:2306c1855f999b24e812dcaf09d3556150422e1806ad49fc67b180f04075d79f
     name: bpfman-operator.v0.5.7-dev
