@@ -23,7 +23,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/ocp-bpfman-tenant/catalog-ystream:{{revision}}
+    value: quay.io/redhat-user-workloads/ocp-bpfman-tenant/catalog-ystream:latest
   - name: build-platforms
     value:
     - linux/x86_64
