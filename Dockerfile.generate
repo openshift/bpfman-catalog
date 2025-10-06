@@ -2,7 +2,7 @@
 FROM alpine:latest AS builder
 
 # Install OPM from the official image.
-COPY --from=quay.io/operator-framework/opm:v1.54.0 /bin/opm /bin/opm
+COPY --from=quay.io/operator-framework/opm:v1.60.0 /bin/opm /bin/opm
 
 # Create containers policy configuration. Use standard development policy
 # that matches Fedora's default configuration.
