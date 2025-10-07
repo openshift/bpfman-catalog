@@ -1,0 +1,98 @@
+# Auto-generated Makefile for catalog deployment
+# Generated from bundle: {{.BundleImage}}
+
+# Username for image references - priority: BPFMAN_CATALOG_QUAY_USER > USER > fallback.
+QUAY_USER ?= $(or $(BPFMAN_CATALOG_QUAY_USER),$(USER),$(shell echo $$USER))
+IMAGE ?= quay.io/$(QUAY_USER)/{{.LocalTag}}:latest
+# Example: IMAGE=ttl.sh/{{.ImageUUID}}:{{.RandomTTL}}
+
+# Image building tool - defaults to podman, override with OCI_BIN.
+OCI_BIN_PATH := $(shell which podman)
+OCI_BIN ?= $(shell if [ -n "$${OCI_BIN_PATH}" ]; then basename $${OCI_BIN_PATH}; else echo "podman"; fi)
+export OCI_BIN
+
+BPFMAN_CATALOG := {{.BinaryPath}}
+
+.PHONY: build-catalog-image
+build-catalog-image:
+	$(OCI_BIN) build -f Dockerfile -t $(IMAGE) .
+
+.PHONY: push-catalog-image
+push-catalog-image:
+	$(OCI_BIN) push $(IMAGE)
+
+.PHONY: get-catalog-digest
+get-catalog-digest:
+	@echo "Getting registry digest for $(IMAGE)..."
+	@skopeo inspect docker://$(IMAGE) | jq -r '.Digest'
+
+.PHONY: deploy-catalog
+deploy-catalog:
+	$(eval DIGEST := $(shell skopeo inspect docker://$(IMAGE) | jq -r '.Digest'))
+	$(eval IMAGE_BASE := $(shell echo $(IMAGE) | sed 's/:.*$$//'))
+	$(eval IMAGE_WITH_DIGEST := $(IMAGE_BASE)@$(DIGEST))
+	@echo "Deploying catalog infrastructure with digest: $(IMAGE_WITH_DIGEST)"
+	$(BPFMAN_CATALOG) prepare-catalog-deployment-from-image $(IMAGE_WITH_DIGEST) --output-dir ./manifests
+	kubectl apply -f ./manifests/catalog/
+
+.PHONY: build-and-deploy-catalog
+build-and-deploy-catalog: build-catalog-image push-catalog-image deploy-catalog
+
+.PHONY: subscribe
+subscribe: deploy-catalog
+	@echo "Adding subscription for automatic operator installation..."
+	kubectl apply -f ./manifests/subscription/
+
+.PHONY: check
+check:
+	@kubectl get namespace,imagedigestmirrorset -l app.kubernetes.io/created-by=bpfman-catalog-cli --show-kind=true
+	@kubectl get catalogsource,operatorgroup,subscription -l app.kubernetes.io/created-by=bpfman-catalog-cli --all-namespaces --show-kind=true
+	@kubectl get pods,csv -n bpfman --show-kind=true
+
+.PHONY: undeploy
+undeploy:
+	@echo "Removing bpfman-config ConfigMap (finalizer cleanup)..."
+	kubectl delete configmap bpfman-config -n bpfman --ignore-not-found
+	kubectl wait --for=delete configmap/bpfman-config -n bpfman --timeout=60s
+	@echo "Removing all bpfman-catalog-cli resources..."
+	kubectl delete all -l app.kubernetes.io/created-by=bpfman-catalog-cli --all-namespaces --ignore-not-found
+	kubectl delete catalogsource,operatorgroup,subscription -l app.kubernetes.io/created-by=bpfman-catalog-cli --all-namespaces --ignore-not-found
+	kubectl delete imagedigestmirrorset -l app.kubernetes.io/created-by=bpfman-catalog-cli --ignore-not-found
+	kubectl delete namespace -l app.kubernetes.io/created-by=bpfman-catalog-cli --ignore-not-found
+
+.PHONY: all
+all: build-catalog-image push-catalog-image subscribe
+
+.PHONY: help
+help:
+	@echo "Available targets:"
+	@echo "  build-catalog-image      - Build catalog container image"
+	@echo "  push-catalog-image       - Push catalog image to registry"
+	@echo "  get-catalog-digest       - Get digest of pushed catalog image"
+	@echo "  deploy-catalog           - Deploy catalog infrastructure only (need to build/push first)"
+	@echo "  build-and-deploy-catalog - Build, push, and deploy catalog infrastructure only"
+	@echo "  subscribe                - Add subscription for automatic installation (requires existing catalog)"
+	@echo "  check                    - Check status of deployed catalog and operator resources"
+	@echo "  undeploy                 - Remove catalog from cluster"
+	@echo "  all                      - Complete build -> push -> deploy catalog + subscription pipeline"
+	@echo ""
+	@echo "Usage examples:"
+	@echo "  make all                                   # Complete workflow with auto-subscription"
+	@echo "  IMAGE=ttl.sh/bpfman-catalog:1h make all        # Use custom registry"
+	@echo "  IMAGE=quay.io/{{.Username}}/bpfman-catalog make all     # Use quay.io"
+	@echo ""
+	@echo "Deployment options:"
+	@echo "  make deploy-catalog                        # Deploy existing catalog image (need to build/push first)"
+	@echo "  make build-and-deploy-catalog              # Build, push, deploy catalog (use UI for operator)"
+	@echo "  make subscribe                             # Add subscription to existing catalog"
+	@echo "  make all                                   # Complete workflow: build + catalog + subscription"
+	@echo "  make undeploy                              # Remove catalog from cluster (cleanup only)"
+	@echo ""
+	@echo "Step-by-step workflows:"
+	@echo "  make build-catalog-image push-catalog-image deploy-catalog  # Catalog only"
+	@echo "  make build-catalog-image push-catalog-image subscribe       # Catalog + subscription"
+	@echo ""
+	@echo "Variables:"
+	@echo "  IMAGE=$(IMAGE)"
+	@echo "  OCI_BIN=$(OCI_BIN)"
+	@echo "  BPFMAN_CATALOG=$(BPFMAN_CATALOG)"
