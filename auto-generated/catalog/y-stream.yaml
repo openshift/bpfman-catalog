@@ -9,7 +9,7 @@ name: stable
 package: bpfman-operator
 schema: olm.channel
 ---
-image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:910d39b46fd7dc10b250c6e43e1f93b046142830f7e42432708be93f23b2a09b
+image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream:latest
 name: bpfman-operator.v0.5.7-dev
 package: bpfman-operator
 properties:
@@ -1031,8 +1031,8 @@ properties:
         ]
       capabilities: Basic Install
       categories: OpenShift Optional
-      containerImage: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:15c8308420e8e37233aec3513e46e5910049e477679c7514ed6ca29bf680709a
-      createdAt: 30 Sep 2025, 09:07
+      containerImage: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:3a4a943f1a1b3ba07bf8797e5298e9623770fbe777f0be1fa56fc4e4c09b8580
+      createdAt: 06 Oct 2025, 08:44
       description: The eBPF manager Operator is designed to manage eBPF programs for
         applications.
       features.operators.openshift.io/cnf: "false"
@@ -1067,8 +1067,8 @@ properties:
         "OpenShift Container Platform", "OpenShift Platform Plus"]'
       operators.operatorframework.io/builder: operator-sdk-v1.27.0
       operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
-      repository: https://github.com/bpfman/bpfman
-      support: bpfman Community
+      repository: https://github.com/openshift/bpfman-operator
+      support: Red Hat
     apiServiceDefinitions: {}
     crdDescriptions:
       owned:
@@ -1096,22 +1096,22 @@ properties:
         name: clusterbpfapplicationstates.bpfman.io
         version: v1alpha1
     description: "The eBPF manager Operator is a Kubernetes Operator for deploying
-      [bpfman](https://bpfman.netlify.app/), a system daemon\nfor managing eBPF programs.
-      It deploys bpfman itself along with CRDs to make deploying\neBPF programs in
-      Kubernetes much easier.\n\n## Quick Start\n\nTo get bpfman up and running quickly
-      simply click 'install' to deploy the bpfman-operator in the bpfman namespace
-      via operator-hub.\n## Configuration\n\nThe `bpfman-config` configmap is automatically
-      created in the `bpfman` namespace and used to configure the bpfman deployment.\n\nTo
-      edit the config simply run\n\n```bash\nkubectl edit cm bpfman-config\n```\n\nThe
-      following fields are adjustable\n\n- `bpfman.agent.image`: The image used for
-      the bpfman-agent`\n- `bpfman.image`: The image used for bpfman`\n- `bpfman.log.level`:
-      the log level for bpfman, currently supports `debug`, `info`, `warn`, `error`,
-      and `fatal`, defaults to `info`\n- `bpfman.agent.log.level`: the log level for
-      the bpfman-agent currently supports `info`, `debug`, and `trace` \n\nThe bpfman
-      operator deploys eBPF programs via CRDs. The following CRDs are currently available,
-      \n\n- BpfApplication\n- ClusterBpfApplication\n - BpfApplicationState\n- ClusterBpfApplicationState\n\n
-      ## More information\n\nPlease checkout the [bpfman community website](https://bpfman.io/)
-      for more information."
+      [bpfman](https://github.com/openshift/bpfman-operator), a system daemon\nfor
+      managing eBPF programs. It deploys bpfman itself along with CRDs to make deploying\neBPF
+      programs in Kubernetes much easier.\n\n## Quick Start\n\nTo get bpfman up and
+      running quickly simply click 'install' to deploy the bpfman-operator in the
+      bpfman namespace via operator-hub.\n## Configuration\n\nThe `bpfman-config`
+      configmap is automatically created in the `bpfman` namespace and used to configure
+      the bpfman deployment.\n\nTo edit the config simply run\n\n```bash\nkubectl
+      edit cm bpfman-config\n```\n\nThe following fields are adjustable\n\n- `bpfman.agent.image`:
+      The image used for the bpfman-agent`\n- `bpfman.image`: The image used for bpfman`\n-
+      `bpfman.log.level`: the log level for bpfman, currently supports `debug`, `info`,
+      `warn`, `error`, and `fatal`, defaults to `info`\n- `bpfman.agent.log.level`:
+      the log level for the bpfman-agent currently supports `info`, `debug`, and `trace`
+      \n\nThe bpfman operator deploys eBPF programs via CRDs. The following CRDs are
+      currently available, \n\n- BpfApplication\n- ClusterBpfApplication\n - BpfApplicationState\n-
+      ClusterBpfApplicationState\n\n ## More information\n\nPlease checkout the [bpfman
+      community website](https://bpfman.io/) for more information."
     displayName: eBPF Manager Operator
     installModes:
     - supported: false
@@ -1145,8 +1145,8 @@ properties:
       name: Red Hat
       url: https://www.redhat.com/
 relatedImages:
-- image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:910d39b46fd7dc10b250c6e43e1f93b046142830f7e42432708be93f23b2a09b
+- image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream:latest
   name: ""
-- image: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:15c8308420e8e37233aec3513e46e5910049e477679c7514ed6ca29bf680709a
+- image: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:3a4a943f1a1b3ba07bf8797e5298e9623770fbe777f0be1fa56fc4e4c09b8580
   name: ""
 schema: olm.bundle

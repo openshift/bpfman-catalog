@@ -1,0 +1,52 @@
+bpfman Operator Catalog - Workflow Guide
+========================================
+
+{{if .BundleCount}}Multi-bundle catalog generated successfully with {{.BundleCount}} bundles!{{else}}Bundle artefacts generated successfully!{{end}}
+
+Generated Files:
+{{if .BundleCount}}  - fbc-template.yaml  (FBC template with {{.BundleCount}} bundles)
+  - catalog.yaml       (Rendered catalog, ready to build)
+  - Dockerfile         (Dockerfile for catalog image)
+  - Makefile           (Automated build/push/deploy)
+{{else}}  - fbc-template.yaml  (FBC template for your bundle)
+{{if .CatalogRendered}}  - catalog.yaml       (Rendered catalog, ready to build)
+{{end}}  - Dockerfile         (Dockerfile for catalog image)
+  - Makefile           (Automated build/push/deploy)
+{{- end}}
+
+To deploy your catalog:
+
+Step-by-step workflow:
+
+  1. Build catalog image:
+     $ make -C {{.OutputDir}} build-catalog-image
+
+  2. Push to registry:
+     $ make -C {{.OutputDir}} push-catalog-image
+
+  3. Deploy to cluster:
+     $ make -C {{.OutputDir}} deploy-catalog
+
+  4. Subscribe to operator (optional):
+     $ make -C {{.OutputDir}} subscribe
+
+All-in-one (build + push + deploy + subscribe):
+  $ make -C {{.OutputDir}} all
+
+After deploying, the catalog will be available in the OpenShift
+Console OperatorHub where you can manually install the bpfman
+operator.
+
+Custom Registry Examples:
+
+Ephemeral testing with ttl.sh:
+  $ make -C {{.OutputDir}} IMAGE=ttl.sh/{{.ImageUUID}}:{{.RandomTTL}} all
+
+Persistent storage with quay.io:
+  $ make -C {{.OutputDir}} IMAGE=quay.io/{{.Username}}/bpfman-catalog all
+
+Available Makefile Targets:
+  $ make -C {{.OutputDir}} help
+
+Cleanup / Remove all deployed resources:
+  $ make -C {{.OutputDir}} undeploy
