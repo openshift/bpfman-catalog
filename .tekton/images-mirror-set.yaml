@@ -14,15 +14,19 @@ spec:
     - source: registry.redhat.io/bpfman/bpfman-agent
       mirrors:
         - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-agent-ystream
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-agent-zstream
     # Mirror for the bpfman-operator bundle
     - source: registry.redhat.io/bpfman/bpfman-operator-bundle
       mirrors:
         - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-zstream
     # Mirror for the bpfman-operator image
     - source: registry.redhat.io/bpfman/bpfman-rhel9-operator
       mirrors:
         - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-ystream
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-zstream
     # Mirror for the bpfman daemon image
     - source: registry.redhat.io/bpfman/bpfman
       mirrors:
         - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-daemon-ystream
+        - quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-daemon-zstream
