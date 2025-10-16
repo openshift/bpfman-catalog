@@ -34,6 +34,10 @@ spec:
     value: Dockerfile
   - name: build-args-file
     value: templates/released.Dockerfile-args
+  - name: build-args
+    value:
+    - "BASE_IMAGE=brew.registry.redhat.io/rh-osbs/openshift-ose-operator-registry-rhel9:v4.20"
+    - "INDEX_FILE=./auto-generated/catalog/released.yaml"
   - name: opm-image
     value: brew.registry.redhat.io/rh-osbs/openshift-ose-operator-registry-rhel9:v4.20
   - name: index-file
