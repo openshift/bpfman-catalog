@@ -6,4 +6,8 @@ entries:
   - schema: olm.channel
     package: bpfman-operator
     name: stable
-    entries: []
+    entries:
+      - name: bpfman-operator.v0.5.7
+  - schema: olm.bundle
+    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:f755814c47659177cbb3aff7b4e5a1f60b17c46c67fa651ce336c6b9b7cfb7b1
+    name: bpfman-operator.v0.5.7

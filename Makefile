@@ -114,7 +114,7 @@ ifeq (,${BUNDLE_SHA})
 else
 	@echo "Creating released.yaml from y-stream template..."
 	cp ./templates/y-stream.yaml ./templates/released.yaml
-	sed -i 's/bundle-ystream:latest/bpfman-operator-bundle@sha256:$(BUNDLE_SHA)/' ./templates/released.yaml
+	sed -i 's/bpfman-operator-bundle-ystream:latest/bpfman-operator-bundle-ystream@sha256:$(BUNDLE_SHA)/' ./templates/released.yaml
 	sed -i 's/registry.stage.redhat.io/registry.redhat.io/' ./templates/released.yaml
 	sed -i 's/v0.5.7-dev/v0.5.7/' ./templates/released.yaml
 	@echo "Updated templates/released.yaml with bundle digest: $(BUNDLE_SHA)"
