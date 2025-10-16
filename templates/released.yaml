@@ -1,0 +1,9 @@
+schema: olm.template.basic
+entries:
+  - schema: olm.package
+    name: bpfman-operator
+    defaultChannel: stable
+  - schema: olm.channel
+    package: bpfman-operator
+    name: stable
+    entries: []

@@ -1,0 +1,9 @@
+---
+defaultChannel: stable
+name: bpfman-operator
+schema: olm.package
+---
+entries: []
+name: stable
+package: bpfman-operator
+schema: olm.channel
