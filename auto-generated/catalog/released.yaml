@@ -4,7 +4,7 @@ name: bpfman-operator
 schema: olm.package
 ---
 entries:
-- name: bpfman-operator.v0.5.7
+- name: bpfman-operator.v0.5.7-dev
 name: stable
 package: bpfman-operator
 schema: olm.channel

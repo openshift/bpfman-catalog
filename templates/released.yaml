@@ -7,7 +7,7 @@ entries:
     package: bpfman-operator
     name: stable
     entries:
-      - name: bpfman-operator.v0.5.7
+      - name: bpfman-operator.v0.5.7-dev
   - schema: olm.bundle
     image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:f755814c47659177cbb3aff7b4e5a1f60b17c46c67fa651ce336c6b9b7cfb7b1
-    name: bpfman-operator.v0.5.7
+    name: bpfman-operator.v0.5.7-dev

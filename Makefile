@@ -117,7 +117,6 @@ else
 	sed -i 's|quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream:latest|registry.redhat.io/bpfman/bpfman-operator-bundle:0.5.7|' ./templates/released.yaml
 	sed -i 's/bpfman-operator-bundle:0.5.7/bpfman-operator-bundle@sha256:$(BUNDLE_SHA)/' ./templates/released.yaml
 	sed -i 's/registry.stage.redhat.io/registry.redhat.io/' ./templates/released.yaml
-	sed -i 's/v0.5.7-dev/v0.5.7/' ./templates/released.yaml
 	@echo "Updated templates/released.yaml with bundle digest: $(BUNDLE_SHA)"
 	@echo "Generating catalog from released template..."
 	$(MAKE) generate-catalogs
