@@ -26,12 +26,13 @@ type ImageResult struct {
 
 // ImageInfo holds extracted metadata from image labels and manifest.
 type ImageInfo struct {
-	Created   *time.Time `json:"created,omitempty"`
-	Version   string     `json:"version,omitempty"`
-	GitCommit string     `json:"git_commit,omitempty"`
-	GitURL    string     `json:"git_url,omitempty"`
-	PRNumber  int        `json:"pr_number,omitempty"`
-	PRTitle   string     `json:"pr_title,omitempty"`
+	Created    *time.Time `json:"created,omitempty"`
+	Version    string     `json:"version,omitempty"`
+	GitCommit  string     `json:"git_commit,omitempty"`
+	GitURL     string     `json:"git_url,omitempty"`
+	CommitDate *time.Time `json:"commit_date,omitempty"`
+	PRNumber   int        `json:"pr_number,omitempty"`
+	PRTitle    string     `json:"pr_title,omitempty"`
 }
 
 // Summary provides aggregate statistics from the analysis.
@@ -56,6 +57,7 @@ const (
 type ImageRef struct {
 	Registry string
 	Repo     string
+	Tag      string
 	Digest   string
 }
 
@@ -63,6 +65,9 @@ type ImageRef struct {
 func (r ImageRef) String() string {
 	if r.Digest != "" {
 		return fmt.Sprintf("%s/%s@%s", r.Registry, r.Repo, r.Digest)
+	}
+	if r.Tag != "" {
+		return fmt.Sprintf("%s/%s:%s", r.Registry, r.Repo, r.Tag)
 	}
 	return fmt.Sprintf("%s/%s", r.Registry, r.Repo)
 }
@@ -89,30 +94,46 @@ func ParseImageRef(ref string) (ImageRef, error) {
 			return ImageRef{}, fmt.Errorf("invalid reference format, missing registry: %s", ref)
 		}
 
-		return ImageRef{
+		result := ImageRef{
 			Registry: registryRepo[:slashIndex],
 			Repo:     registryRepo[slashIndex+1:],
 			Digest:   digest,
-		}, nil
+		}
+
+		if result.Digest == "" {
+			return ImageRef{}, fmt.Errorf("digest-based reference has empty digest: %s", ref)
+		}
+
+		return result, nil
 	}
 
-	var registry, repo string
+	var registry, repo, tag string
 	slashIndex := strings.Index(ref, "/")
 	if slashIndex == -1 {
 		return ImageRef{}, fmt.Errorf("invalid reference format, missing registry: %s", ref)
 	}
 
 	registry = ref[:slashIndex]
-	repo = ref[slashIndex+1:]
+	repoWithTag := ref[slashIndex+1:]
 
-	if colonIndex := strings.LastIndex(repo, ":"); colonIndex != -1 {
-		repo = repo[:colonIndex]
+	if colonIndex := strings.LastIndex(repoWithTag, ":"); colonIndex != -1 {
+		repo = repoWithTag[:colonIndex]
+		tag = repoWithTag[colonIndex+1:]
+	} else {
+		repo = repoWithTag
 	}
 
-	return ImageRef{
+	result := ImageRef{
 		Registry: registry,
 		Repo:     repo,
-	}, nil
+		Tag:      tag,
+	}
+
+	if result.Tag == "" {
+		return ImageRef{}, fmt.Errorf("image reference missing tag (and not digest-based): %s", ref)
+	}
+
+	return result, nil
 }
 
 // ConvertToTenantWorkspace converts a downstream registry reference
@@ -134,6 +155,7 @@ func (r ImageRef) ConvertToTenantWorkspace() (ImageRef, error) {
 	return ImageRef{
 		Registry: "quay.io",
 		Repo:     tenantRepo,
+		Tag:      r.Tag,
 		Digest:   r.Digest,
 	}, nil
 }
