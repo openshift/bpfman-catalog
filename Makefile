@@ -103,6 +103,26 @@ build-image: ## Build catalog container image.
 push-image: ## Push catalog container image.
 	$(OCI_BIN) push ${IMAGE}
 
+.PHONY: final-ystream
+final-ystream: ## Accept current ystream as final release
+ifeq (,${BUNDLE_SHA})
+	@echo "You must provide the final bundle SHA in BUNDLE_SHA."
+	@echo "Find the bundle digest from the latest successful bpfman-ystream release:"
+	@echo "  https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/ocp-bpfman-tenant/applications/bpfman-ystream/releases"
+	@echo "Example usage:"
+	@echo "  make final-ystream BUNDLE_SHA=f755814c47659177cbb3aff7b4e5a1f60b17c46c67fa651ce336c6b9b7cfb7b1"
+else
+	@echo "Creating released.yaml from y-stream template..."
+	cp ./templates/y-stream.yaml ./templates/released.yaml
+	sed -i 's/bundle-ystream:latest/bpfman-operator-bundle@sha256:$(BUNDLE_SHA)/' ./templates/released.yaml
+	sed -i 's/registry.stage.redhat.io/registry.redhat.io/' ./templates/released.yaml
+	sed -i 's/v0.5.7-dev/v0.5.7/' ./templates/released.yaml
+	@echo "Updated templates/released.yaml with bundle digest: $(BUNDLE_SHA)"
+	@echo "Generating catalog from released template..."
+	$(MAKE) generate-catalogs
+	@echo "Done! Released catalog ready at auto-generated/catalog/released.yaml"
+endif
+
 ##@ Deployment
 
 .PHONY: deploy
