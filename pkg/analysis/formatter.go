@@ -63,8 +63,12 @@ func formatText(analysis *BundleAnalysis) string {
 	if imageCount == 0 {
 		b.WriteString("No images found in bundle.\n")
 	} else {
-		b.WriteString(fmt.Sprintf("Images (%d found):\n", imageCount))
+		b.WriteString(fmt.Sprintf("Images (%d found):\n\n", imageCount))
 		for _, img := range analysis.Images {
+			componentLabel := identifyComponent(img.Reference)
+			if componentLabel != "" {
+				b.WriteString(fmt.Sprintf("=== %s ===\n", componentLabel))
+			}
 			b.WriteString(formatImageResult(img))
 		}
 	}
@@ -111,6 +115,9 @@ func formatImageResult(img ImageResult) string {
 		if img.Info.GitCommit != "" && img.Info.GitURL != "" {
 			commitURL := buildCommitURL(img.Info.GitURL, img.Info.GitCommit)
 			b.WriteString(fmt.Sprintf("    Git: %s\n", commitURL))
+			if img.Info.CommitDate != nil {
+				b.WriteString(fmt.Sprintf("    Commit Date: %s\n", img.Info.CommitDate.Format(time.RFC3339)))
+			}
 		}
 		if img.Info.PRNumber > 0 {
 			prURL := buildPRURL(img.Info.GitURL, img.Info.PRNumber)
@@ -178,6 +185,27 @@ func buildPRURL(gitURL string, prNumber int) string {
 	if strings.Contains(gitURL, "github.com") {
 		baseURL := strings.TrimSuffix(gitURL, ".git")
 		return fmt.Sprintf("%s/pull/%d", baseURL, prNumber)
+	}
+
+	return ""
+}
+
+// identifyComponent identifies the component type based on image reference.
+func identifyComponent(imageRef string) string {
+	lowerRef := strings.ToLower(imageRef)
+
+	if strings.Contains(lowerRef, "bundle") {
+		return "Bundle Image"
+	}
+	if strings.Contains(lowerRef, "agent") {
+		return "Bpfman Agent Image"
+	}
+	if strings.Contains(lowerRef, "operator") {
+		return "Operator Image"
+	}
+	// Match bpfman without any suffix (daemon/rust component)
+	if strings.Contains(lowerRef, "/bpfman@") || strings.Contains(lowerRef, "/bpfman:") {
+		return "Bpfman Daemon (Rust) Image"
 	}
 
 	return ""

@@ -2,10 +2,13 @@ package analysis
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/containers/image/v5/types"
 )
@@ -42,6 +45,12 @@ func extractMetadataFromLabels(info *types.ImageInspectInfo) *ImageInfo {
 	metadata.GitCommit = extractGitCommit(labels)
 	metadata.GitURL = extractGitURL(labels)
 	metadata.PRNumber, metadata.PRTitle = extractPRInfo(labels)
+
+	if metadata.GitCommit != "" && metadata.GitURL != "" {
+		if commitDate := fetchCommitDate(metadata.GitURL, metadata.GitCommit); commitDate != nil {
+			metadata.CommitDate = commitDate
+		}
+	}
 
 	return metadata
 }
@@ -195,4 +204,58 @@ func extractPRNumber(s string) int {
 	}
 
 	return 0
+}
+
+// fetchCommitDate fetches the commit date from GitHub using the gh CLI.
+// Returns nil if gh is not available or the fetch fails.
+func fetchCommitDate(gitURL, commitHash string) *time.Time {
+	ownerRepo := extractGitHubOwnerRepo(gitURL)
+	if ownerRepo == "" {
+		return nil
+	}
+
+	apiPath := fmt.Sprintf("repos/%s/commits/%s", ownerRepo, commitHash)
+	cmd := exec.Command("gh", "api", apiPath)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil
+	}
+
+	var result struct {
+		Commit struct {
+			Committer struct {
+				Date string `json:"date"`
+			} `json:"committer"`
+		} `json:"commit"`
+	}
+
+	if err := json.Unmarshal(output, &result); err != nil {
+		return nil
+	}
+
+	if result.Commit.Committer.Date != "" {
+		if t, err := time.Parse(time.RFC3339, result.Commit.Committer.Date); err == nil {
+			return &t
+		}
+	}
+
+	return nil
+}
+
+// extractGitHubOwnerRepo extracts "owner/repo" from a GitHub URL.
+func extractGitHubOwnerRepo(gitURL string) string {
+	if !strings.Contains(gitURL, "github.com") {
+		return ""
+	}
+
+	// Handle https://github.com/owner/repo or git@github.com:owner/repo.git
+	gitURL = strings.TrimSuffix(gitURL, ".git")
+
+	re := regexp.MustCompile(`github\.com[:/]([^/]+/[^/]+)`)
+	matches := re.FindStringSubmatch(gitURL)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+
+	return ""
 }

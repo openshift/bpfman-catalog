@@ -3,33 +3,53 @@ package analysis
 import (
 	"context"
 	"fmt"
+	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 // AnalyseBundle performs analysis of a bundle image.
 func AnalyseBundle(ctx context.Context, bundleRefStr string) (*BundleAnalysis, error) {
-	bundleRef, err := ParseImageRef(bundleRefStr)
+	resolvedRefStr := bundleRefStr
+	if !strings.Contains(bundleRefStr, "@sha256:") {
+		logrus.Infof("Resolving tag reference to digest: %s", bundleRefStr)
+		resolved, err := ResolveToDigest(ctx, bundleRefStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to resolve tag to digest: %w", err)
+		}
+		resolvedRefStr = resolved
+		logrus.Infof("Resolved to digest: %s", resolvedRefStr)
+	}
+
+	bundleRef, err := ParseImageRef(resolvedRefStr)
 	if err != nil {
 		return nil, fmt.Errorf("invalid bundle reference: %w", err)
 	}
+
+	logrus.Debugf("Parsed bundle ref: %s", bundleRef.String())
 
 	analysis := &BundleAnalysis{
 		BundleRef: bundleRef,
 		Images:    []ImageResult{},
 	}
 
+	logrus.Debugf("Extracting bundle metadata")
 	bundleInfo, err := extractBundleMetadata(ctx, bundleRef)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract bundle metadata: %w", err)
 	}
 	analysis.BundleInfo = bundleInfo
 
+	logrus.Debugf("Extracting image references from bundle")
 	imageRefs, err := ExtractImageReferences(ctx, bundleRef)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract image references: %w", err)
 	}
 
+	logrus.Debugf("Found %d image references", len(imageRefs))
 	imageResults := make([]ImageResult, len(imageRefs))
 	for i, ref := range imageRefs {
+		logrus.Debugf("Inspecting image %d/%d: %s", i+1, len(imageRefs), ref)
 		result, err := InspectImage(ctx, ref)
 		if err != nil {
 			imageResults[i] = ImageResult{
