@@ -17,6 +17,7 @@ import (
 	"github.com/operator-framework/operator-registry/pkg/image"
 	"github.com/operator-framework/operator-registry/pkg/image/execregistry"
 	"github.com/sirupsen/logrus"
+	"sigs.k8s.io/yaml"
 )
 
 // ExtractImageReferences extracts all image references from a bundle
@@ -127,6 +128,72 @@ func extractConfigMapImages(ctx context.Context, bundleRef ImageRef, registry im
 	}
 
 	return images, nil
+}
+
+// CSVMetadata holds extracted metadata from the ClusterServiceVersion.
+type CSVMetadata struct {
+	Version   string
+	CreatedAt string
+}
+
+// ExtractCSVMetadata extracts version and createdAt from the ClusterServiceVersion in a bundle image.
+func ExtractCSVMetadata(ctx context.Context, bundleRef ImageRef, registry image.Registry) (*CSVMetadata, error) {
+	tmpDir, err := os.MkdirTemp("", "bundle-csv-*")
+	if err != nil {
+		return nil, fmt.Errorf("creating temp directory: %w", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	ref := image.SimpleReference(bundleRef.String())
+	if err := registry.Unpack(ctx, ref, tmpDir); err != nil {
+		return nil, fmt.Errorf("unpacking bundle image: %w", err)
+	}
+
+	manifestDir := filepath.Join(tmpDir, "manifests")
+	entries, err := os.ReadDir(manifestDir)
+	if err != nil {
+		return nil, fmt.Errorf("reading manifests directory: %w", err)
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		if strings.Contains(strings.ToLower(entry.Name()), "clusterserviceversion") {
+			csvPath := filepath.Join(manifestDir, entry.Name())
+			data, err := os.ReadFile(csvPath)
+			if err != nil {
+				logrus.WithError(err).Debugf("failed to read CSV file: %s", entry.Name())
+				continue
+			}
+
+			var csv struct {
+				Spec struct {
+					Version string `yaml:"version"`
+				} `yaml:"spec"`
+				Metadata struct {
+					Annotations map[string]string `yaml:"annotations"`
+				} `yaml:"metadata"`
+			}
+
+			if err := yaml.Unmarshal(data, &csv); err != nil {
+				logrus.WithError(err).Debugf("failed to parse CSV YAML: %s", entry.Name())
+				continue
+			}
+
+			metadata := &CSVMetadata{
+				Version:   csv.Spec.Version,
+				CreatedAt: csv.Metadata.Annotations["createdAt"],
+			}
+
+			if metadata.Version != "" || metadata.CreatedAt != "" {
+				logrus.Debugf("Found CSV metadata: version=%s, createdAt=%s", metadata.Version, metadata.CreatedAt)
+				return metadata, nil
+			}
+		}
+	}
+
+	return nil, nil
 }
 
 // ResolveToDigest resolves an image reference to a digest-based reference.
