@@ -7,7 +7,12 @@ entries:
     package: bpfman-operator
     name: stable
     entries:
-      - name: bpfman-operator.v0.5.7-dev
+      - name: bpfman-operator.v0.5.6-ocp420-test1
+      - name: bpfman-operator.v0.5.6-ocp420-test2
+        replaces: bpfman-operator.v0.5.6-ocp420-test1
   - schema: olm.bundle
-    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream:latest
-    name: bpfman-operator.v0.5.7-dev
+    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:249c235edc05d01a22249d536682ea13b1896fbdebfef11082612d6c6b9bb66a
+    name: bpfman-operator.v0.5.6-ocp420-test1
+  - schema: olm.bundle
+    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:6b16d327f93bbb357ad50e9a1a11a00f0de1de1cd84c69b917e1d2bceaaf57d1
+    name: bpfman-operator.v0.5.6-ocp420-test2
