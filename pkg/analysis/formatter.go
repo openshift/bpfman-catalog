@@ -40,7 +40,13 @@ func formatText(analysis *BundleAnalysis) string {
 			b.WriteString(fmt.Sprintf("  Created: %s\n", analysis.BundleInfo.Created.Format(time.RFC3339)))
 		}
 		if analysis.BundleInfo.Version != "" {
-			b.WriteString(fmt.Sprintf("  Version: %s\n", analysis.BundleInfo.Version))
+			b.WriteString(fmt.Sprintf("  Image version (label): %s\n", analysis.BundleInfo.Version))
+		}
+		if analysis.BundleInfo.CSVVersion != "" {
+			b.WriteString(fmt.Sprintf("  ClusterServiceVersion: %s\n", analysis.BundleInfo.CSVVersion))
+		}
+		if analysis.BundleInfo.CSVCreatedAt != "" {
+			b.WriteString(fmt.Sprintf("  CSV Created: %s\n", analysis.BundleInfo.CSVCreatedAt))
 		}
 		if analysis.BundleInfo.GitCommit != "" && analysis.BundleInfo.GitURL != "" {
 			commitURL := buildCommitURL(analysis.BundleInfo.GitURL, analysis.BundleInfo.GitCommit)
@@ -110,7 +116,7 @@ func formatImageResult(img ImageResult) string {
 			b.WriteString(fmt.Sprintf("    Created: %s\n", img.Info.Created.Format(time.RFC3339)))
 		}
 		if img.Info.Version != "" {
-			b.WriteString(fmt.Sprintf("    Version: %s\n", img.Info.Version))
+			b.WriteString(fmt.Sprintf("    Image version (label): %s\n", img.Info.Version))
 		}
 		if img.Info.GitCommit != "" && img.Info.GitURL != "" {
 			commitURL := buildCommitURL(img.Info.GitURL, img.Info.GitCommit)

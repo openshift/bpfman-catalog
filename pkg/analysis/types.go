@@ -26,13 +26,15 @@ type ImageResult struct {
 
 // ImageInfo holds extracted metadata from image labels and manifest.
 type ImageInfo struct {
-	Created    *time.Time `json:"created,omitempty"`
-	Version    string     `json:"version,omitempty"`
-	GitCommit  string     `json:"git_commit,omitempty"`
-	GitURL     string     `json:"git_url,omitempty"`
-	CommitDate *time.Time `json:"commit_date,omitempty"`
-	PRNumber   int        `json:"pr_number,omitempty"`
-	PRTitle    string     `json:"pr_title,omitempty"`
+	Created      *time.Time `json:"created,omitempty"`
+	Version      string     `json:"version,omitempty"`
+	CSVVersion   string     `json:"csv_version,omitempty"`
+	CSVCreatedAt string     `json:"csv_created_at,omitempty"`
+	GitCommit    string     `json:"git_commit,omitempty"`
+	GitURL       string     `json:"git_url,omitempty"`
+	CommitDate   *time.Time `json:"commit_date,omitempty"`
+	PRNumber     int        `json:"pr_number,omitempty"`
+	PRTitle      string     `json:"pr_title,omitempty"`
 }
 
 // Summary provides aggregate statistics from the analysis.
