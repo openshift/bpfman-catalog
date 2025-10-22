@@ -17,4 +17,4 @@ entries:
   - schema: olm.bundle          # 0.5.7-dev (OCP 4.19)
     image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:36922ea0b333bf60bfd358425681c472db07a99dd07c929383ee3bcc5e93c19f
   - schema: olm.bundle          # 0.5.7-dev-1 (OCP 4.20 y-stream)
-    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:f29ae907c0b783b96321c076e0a5e24a0cb9c921c042cdb993aa6f142736bb6f
+    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:91a1e881c9c9487e63fab8bb3f2fd83617be49546be316d07235a4a4252642e7
