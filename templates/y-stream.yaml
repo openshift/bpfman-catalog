@@ -10,11 +10,11 @@ entries:
       - name: bpfman-operator.v0.5.4
       - name: bpfman-operator.v0.5.7-dev
         replaces: bpfman-operator.v0.5.4
-      - name: bpfman-operator.v0.5.7-dev-1
+      - name: bpfman-operator.v0.5.8
         replaces: bpfman-operator.v0.5.7-dev
   - schema: olm.bundle          # 0.5.4 (OCP 4.18)
     image: quay.io/bpfman/bpfman-operator-bundle:v0.5.4
   - schema: olm.bundle          # 0.5.7-dev (OCP 4.19)
     image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:36922ea0b333bf60bfd358425681c472db07a99dd07c929383ee3bcc5e93c19f
-  - schema: olm.bundle          # 0.5.7-dev-1 (OCP 4.20 y-stream)
-    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:91a1e881c9c9487e63fab8bb3f2fd83617be49546be316d07235a4a4252642e7
+  - schema: olm.bundle          # 0.5.8 (OCP 4.20)
+    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:56b301ae2b298d6e9d1977b685758f4eac8fbad662e463897ade627edadf92ff

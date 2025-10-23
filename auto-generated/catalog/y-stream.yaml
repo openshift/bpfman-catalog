@@ -7,7 +7,7 @@ entries:
 - name: bpfman-operator.v0.5.4
 - name: bpfman-operator.v0.5.7-dev
   replaces: bpfman-operator.v0.5.4
-- name: bpfman-operator.v0.5.7-dev-1
+- name: bpfman-operator.v0.5.8
   replaces: bpfman-operator.v0.5.7-dev
 name: stable
 package: bpfman-operator
@@ -1648,8 +1648,8 @@ relatedImages:
   name: ""
 schema: olm.bundle
 ---
-image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:91a1e881c9c9487e63fab8bb3f2fd83617be49546be316d07235a4a4252642e7
-name: bpfman-operator.v0.5.7-dev-1
+image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:56b301ae2b298d6e9d1977b685758f4eac8fbad662e463897ade627edadf92ff
+name: bpfman-operator.v0.5.8
 package: bpfman-operator
 properties:
 - type: olm.gvk
@@ -1675,7 +1675,7 @@ properties:
 - type: olm.package
   value:
     packageName: bpfman-operator
-    version: 0.5.7-dev-1
+    version: 0.5.8
 - type: olm.csv.metadata
   value:
     annotations:
@@ -2670,8 +2670,8 @@ properties:
         ]
       capabilities: Basic Install
       categories: OpenShift Optional
-      containerImage: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:914a3967791730fff6bbd593d1465ccd7ac5cb018edc40a2e76598fb6285be34
-      createdAt: 22 Oct 2025, 18:22
+      containerImage: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:445da3985a6b0f1527921eae917173b00d2eafbe9920c5b1fc110dfe5aa44542
+      createdAt: 23 Oct 2025, 20:12
       description: The eBPF manager Operator is designed to manage eBPF programs for
         applications.
       features.operators.openshift.io/cnf: "false"
@@ -2784,8 +2784,8 @@ properties:
       name: Red Hat
       url: https://www.redhat.com/
 relatedImages:
-- image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:91a1e881c9c9487e63fab8bb3f2fd83617be49546be316d07235a4a4252642e7
+- image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream@sha256:56b301ae2b298d6e9d1977b685758f4eac8fbad662e463897ade627edadf92ff
   name: ""
-- image: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:914a3967791730fff6bbd593d1465ccd7ac5cb018edc40a2e76598fb6285be34
+- image: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:445da3985a6b0f1527921eae917173b00d2eafbe9920c5b1fc110dfe5aa44542
   name: ""
 schema: olm.bundle
