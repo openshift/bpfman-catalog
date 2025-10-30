@@ -60,6 +60,7 @@ func InspectImage(ctx context.Context, imageRefStr string) (*ImageResult, error)
 	if info, err := inspectImageRef(ctx, tenantRef); err == nil {
 		result.Accessible = true
 		result.Registry = TenantWorkspace
+		result.TenantRef = tenantRef.String()
 		result.Info = convertToImageInfo(info)
 		logrus.Debugf("Successfully inspected via tenant workspace: %s", tenantRef.String())
 		return result, nil

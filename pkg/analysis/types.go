@@ -18,6 +18,7 @@ type BundleAnalysis struct {
 // ImageResult contains analysis results for a single image.
 type ImageResult struct {
 	Reference  string       `json:"reference"`
+	TenantRef  string       `json:"tenant_ref,omitempty"` // Tenant workspace reference if found there
 	Accessible bool         `json:"accessible"`
 	Registry   RegistryType `json:"registry"`
 	Info       *ImageInfo   `json:"info,omitempty"`
@@ -152,7 +153,24 @@ func (r ImageRef) ConvertToTenantWorkspace() (ImageRef, error) {
 	}
 
 	component := strings.TrimPrefix(r.Repo, "bpfman/")
-	tenantRepo := fmt.Sprintf("redhat-user-workloads/ocp-bpfman-tenant/%s-ystream", component)
+
+	// Map downstream component names to tenant workspace names
+	var tenantComponent string
+	switch component {
+	case "bpfman":
+		tenantComponent = "bpfman-daemon-ystream"
+	case "bpfman-rhel9-operator":
+		tenantComponent = "bpfman-operator-ystream"
+	case "bpfman-agent":
+		tenantComponent = "bpfman-agent-ystream"
+	case "bpfman-operator-bundle":
+		tenantComponent = "bpfman-operator-bundle-ystream"
+	default:
+		// Fallback: append -ystream
+		tenantComponent = component + "-ystream"
+	}
+
+	tenantRepo := fmt.Sprintf("redhat-user-workloads/ocp-bpfman-tenant/%s", tenantComponent)
 
 	return ImageRef{
 		Registry: "quay.io",
