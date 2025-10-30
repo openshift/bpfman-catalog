@@ -4,12 +4,507 @@ name: bpfman-operator
 schema: olm.package
 ---
 entries:
+- name: bpfman-operator.v0.5.4
 - name: bpfman-operator.v0.5.7-dev
+  replaces: bpfman-operator.v0.5.4
 name: stable
 package: bpfman-operator
 schema: olm.channel
 ---
-image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream:latest
+image: quay.io/bpfman/bpfman-operator-bundle:v0.5.4
+name: bpfman-operator.v0.5.4
+package: bpfman-operator
+properties:
+- type: olm.gvk
+  value:
+    group: bpfman.io
+    kind: BpfApplication
+    version: v1alpha1
+- type: olm.gvk
+  value:
+    group: bpfman.io
+    kind: BpfProgram
+    version: v1alpha1
+- type: olm.gvk
+  value:
+    group: bpfman.io
+    kind: FentryProgram
+    version: v1alpha1
+- type: olm.gvk
+  value:
+    group: bpfman.io
+    kind: FexitProgram
+    version: v1alpha1
+- type: olm.gvk
+  value:
+    group: bpfman.io
+    kind: KprobeProgram
+    version: v1alpha1
+- type: olm.gvk
+  value:
+    group: bpfman.io
+    kind: TcProgram
+    version: v1alpha1
+- type: olm.gvk
+  value:
+    group: bpfman.io
+    kind: TracepointProgram
+    version: v1alpha1
+- type: olm.gvk
+  value:
+    group: bpfman.io
+    kind: UprobeProgram
+    version: v1alpha1
+- type: olm.gvk
+  value:
+    group: bpfman.io
+    kind: XdpProgram
+    version: v1alpha1
+- type: olm.gvk.required
+  value:
+    group: security-profiles-operator.x-k8s.io
+    kind: SelinuxProfile
+    version: v1alpha2
+- type: olm.package
+  value:
+    packageName: bpfman-operator
+    version: 0.5.4
+- type: olm.csv.metadata
+  value:
+    annotations:
+      alm-examples: |-
+        [
+          {
+            "apiVersion": "bpfman.io/v1alpha1",
+            "kind": "BpfApplication",
+            "metadata": {
+              "labels": {
+                "app.kubernetes.io/name": "bpfapplication"
+              },
+              "name": "bpfapplication-sample"
+            },
+            "spec": {
+              "bytecode": {
+                "image": {
+                  "url": "quay.io/bpfman-bytecode/go-app-counter:latest"
+                }
+              },
+              "nodeselector": {},
+              "programs": [
+                {
+                  "kprobe": {
+                    "bpffunctionname": "kprobe_counter",
+                    "func_name": "try_to_wake_up",
+                    "offset": 0,
+                    "retprobe": false
+                  },
+                  "type": "Kprobe"
+                },
+                {
+                  "tracepoint": {
+                    "bpffunctionname": "tracepoint_kill_recorder",
+                    "names": [
+                      "syscalls/sys_enter_kill"
+                    ]
+                  },
+                  "type": "Tracepoint"
+                },
+                {
+                  "tc": {
+                    "bpffunctionname": "stats",
+                    "direction": "ingress",
+                    "interfaceselector": {
+                      "primarynodeinterface": true
+                    },
+                    "priority": 55
+                  },
+                  "type": "TC"
+                },
+                {
+                  "type": "Uprobe",
+                  "uprobe": {
+                    "bpffunctionname": "uprobe_counter",
+                    "containers": {
+                      "containernames": [
+                        "bpfman",
+                        "bpfman-agent"
+                      ],
+                      "namespace": "bpfman",
+                      "pods": {
+                        "matchLabels": {
+                          "name": "bpfman-daemon"
+                        }
+                      }
+                    },
+                    "func_name": "malloc",
+                    "retprobe": false,
+                    "target": "libc"
+                  }
+                },
+                {
+                  "type": "XDP",
+                  "xdp": {
+                    "bpffunctionname": "xdp_stats",
+                    "interfaceselector": {
+                      "primarynodeinterface": true
+                    },
+                    "priority": 55
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "apiVersion": "bpfman.io/v1alpha1",
+            "kind": "FentryProgram",
+            "metadata": {
+              "labels": {
+                "app.kubernetes.io/name": "fentryprogram"
+              },
+              "name": "fentry-example"
+            },
+            "spec": {
+              "bpffunctionname": "test_fentry",
+              "bytecode": {
+                "image": {
+                  "url": "quay.io/bpfman-bytecode/fentry:latest"
+                }
+              },
+              "func_name": "do_unlinkat",
+              "nodeselector": {}
+            }
+          },
+          {
+            "apiVersion": "bpfman.io/v1alpha1",
+            "kind": "FexitProgram",
+            "metadata": {
+              "labels": {
+                "app.kubernetes.io/name": "fexitprogram"
+              },
+              "name": "fexit-example"
+            },
+            "spec": {
+              "bpffunctionname": "test_fexit",
+              "bytecode": {
+                "image": {
+                  "url": "quay.io/bpfman-bytecode/fexit:latest"
+                }
+              },
+              "func_name": "do_unlinkat",
+              "nodeselector": {}
+            }
+          },
+          {
+            "apiVersion": "bpfman.io/v1alpha1",
+            "kind": "KprobeProgram",
+            "metadata": {
+              "labels": {
+                "app.kubernetes.io/name": "kprobeprogram"
+              },
+              "name": "kprobe-example"
+            },
+            "spec": {
+              "bpffunctionname": "my_kprobe",
+              "bytecode": {
+                "image": {
+                  "url": "quay.io/bpfman-bytecode/kprobe:latest"
+                }
+              },
+              "func_name": "try_to_wake_up",
+              "globaldata": {
+                "GLOBAL_u32": [
+                  13,
+                  12,
+                  11,
+                  10
+                ],
+                "GLOBAL_u8": [
+                  1
+                ]
+              },
+              "nodeselector": {},
+              "offset": 0,
+              "retprobe": false
+            }
+          },
+          {
+            "apiVersion": "bpfman.io/v1alpha1",
+            "kind": "TcProgram",
+            "metadata": {
+              "labels": {
+                "app.kubernetes.io/name": "tcprogram"
+              },
+              "name": "tc-pass-all-nodes"
+            },
+            "spec": {
+              "bpffunctionname": "pass",
+              "bytecode": {
+                "image": {
+                  "url": "quay.io/bpfman-bytecode/tc_pass:latest"
+                }
+              },
+              "direction": "ingress",
+              "globaldata": {
+                "GLOBAL_u32": [
+                  13,
+                  12,
+                  11,
+                  10
+                ],
+                "GLOBAL_u8": [
+                  1
+                ]
+              },
+              "interfaceselector": {
+                "primarynodeinterface": true
+              },
+              "nodeselector": {},
+              "priority": 0
+            }
+          },
+          {
+            "apiVersion": "bpfman.io/v1alpha1",
+            "kind": "TracepointProgram",
+            "metadata": {
+              "labels": {
+                "app.kubernetes.io/name": "tracepointprogram"
+              },
+              "name": "tracepoint-example"
+            },
+            "spec": {
+              "bpffunctionname": "enter_openat",
+              "bytecode": {
+                "image": {
+                  "url": "quay.io/bpfman-bytecode/tracepoint:latest"
+                }
+              },
+              "globaldata": {
+                "GLOBAL_u32": [
+                  13,
+                  12,
+                  11,
+                  10
+                ],
+                "GLOBAL_u8": [
+                  1
+                ]
+              },
+              "names": [
+                "syscalls/sys_enter_openat"
+              ],
+              "nodeselector": {}
+            }
+          },
+          {
+            "apiVersion": "bpfman.io/v1alpha1",
+            "kind": "UprobeProgram",
+            "metadata": {
+              "labels": {
+                "app.kubernetes.io/name": "uprobeprogram"
+              },
+              "name": "uprobe-example"
+            },
+            "spec": {
+              "bpffunctionname": "my_uprobe",
+              "bytecode": {
+                "image": {
+                  "url": "quay.io/bpfman-bytecode/uprobe:latest"
+                }
+              },
+              "func_name": "syscall",
+              "globaldata": {
+                "GLOBAL_u32": [
+                  13,
+                  12,
+                  11,
+                  10
+                ],
+                "GLOBAL_u8": [
+                  1
+                ]
+              },
+              "nodeselector": {},
+              "retprobe": false,
+              "target": "libc"
+            }
+          },
+          {
+            "apiVersion": "bpfman.io/v1alpha1",
+            "kind": "XdpProgram",
+            "metadata": {
+              "labels": {
+                "app.kubernetes.io/name": "xdpprogram"
+              },
+              "name": "xdp-pass-all-nodes"
+            },
+            "spec": {
+              "bpffunctionname": "pass",
+              "bytecode": {
+                "image": {
+                  "url": "quay.io/bpfman-bytecode/xdp_pass:latest"
+                }
+              },
+              "globaldata": {
+                "GLOBAL_u32": [
+                  13,
+                  12,
+                  11,
+                  10
+                ],
+                "GLOBAL_u8": [
+                  1
+                ]
+              },
+              "interfaceselector": {
+                "primarynodeinterface": true
+              },
+              "nodeselector": {},
+              "priority": 0
+            }
+          }
+        ]
+      capabilities: Basic Install
+      categories: OpenShift Optional
+      containerImage: quay.io/bpfman/bpfman-operator:latest
+      createdAt: "2024-10-17T13:56:37Z"
+      features.operators.openshift.io/cnf: "false"
+      features.operators.openshift.io/cni: "false"
+      features.operators.openshift.io/csi: "true"
+      features.operators.openshift.io/disconnected: "true"
+      features.operators.openshift.io/fips-compliant: "true"
+      features.operators.openshift.io/proxy-aware: "false"
+      features.operators.openshift.io/tls-profiles: "false"
+      features.operators.openshift.io/token-auth-aws: "false"
+      features.operators.openshift.io/token-auth-azure: "false"
+      features.operators.openshift.io/token-auth-gcp: "false"
+      operatorframework.io/suggested-namespace: bpfman
+      operatorframework.io/suggested-namespace-template: |-
+        {
+          "apiVersion": "v1",
+          "kind": "Namespace",
+          "metadata": {
+            "name": "bpfman",
+            "labels": {
+              "pod-security.kubernetes.io/enforce": "privileged",
+              "pod-security.kubernetes.io/audit": "privileged",
+              "pod-security.kubernetes.io/warn": "privileged",
+            },
+            "annotations": {
+              "openshift.io/node-selector": ""
+            },
+          }
+        }
+      operators.openshift.io/infrastructure-features: '["csi", "disconnected"]'
+      operators.openshift.io/valid-subscription: '["OpenShift Kubernetes Engine",
+        "OpenShift Container Platform", "OpenShift Platform Plus"]'
+      operators.operatorframework.io/builder: operator-sdk-v1.27.0
+      operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
+      repository: https://github.com/bpfman/bpfman
+    apiServiceDefinitions: {}
+    crdDescriptions:
+      owned:
+      - description: BpfApplication is the Schema for the bpfapplications API
+        displayName: Bpf Application
+        kind: BpfApplication
+        name: bpfapplications.bpfman.io
+        version: v1alpha1
+      - description: BpfProgram is the Schema for the BpfProgram API
+        displayName: Bpf Program
+        kind: BpfProgram
+        name: bpfprograms.bpfman.io
+        version: v1alpha1
+      - description: FentryProgram is the Schema for the Fentryprograms API
+        displayName: Fentry Program
+        kind: FentryProgram
+        name: fentryprograms.bpfman.io
+        version: v1alpha1
+      - description: FexitProgram is the Schema for the Fexitprograms API
+        displayName: Fexit Program
+        kind: FexitProgram
+        name: fexitprograms.bpfman.io
+        version: v1alpha1
+      - description: KprobeProgram is the Schema for the Kprobeprograms API
+        displayName: Kprobe Program
+        kind: KprobeProgram
+        name: kprobeprograms.bpfman.io
+        version: v1alpha1
+      - description: TcProgram is the Schema for the Tcprograms API
+        displayName: Tc Program
+        kind: TcProgram
+        name: tcprograms.bpfman.io
+        version: v1alpha1
+      - description: TracepointProgram is the Schema for the Tracepointprograms API
+        displayName: Tracepoint Program
+        kind: TracepointProgram
+        name: tracepointprograms.bpfman.io
+        version: v1alpha1
+      - description: UprobeProgram is the Schema for the Uprobeprograms API
+        displayName: Uprobe Program
+        kind: UprobeProgram
+        name: uprobeprograms.bpfman.io
+        version: v1alpha1
+      - description: XdpProgram is the Schema for the Xdpprograms API
+        displayName: Xdp Program
+        kind: XdpProgram
+        name: xdpprograms.bpfman.io
+        version: v1alpha1
+    description: "The bpfman Operator is a Kubernetes Operator for deploying [bpfman](https://bpfman.netlify.app/),
+      a system daemon\nfor managing eBPF programs. It deploys bpfman itself along
+      with CRDs to make deploying\neBPF programs in Kubernetes much easier.\n\n##
+      Quick Start\n\nTo get bpfman up and running quickly simply click 'install' to
+      deploy the bpfman-operator in the bpfman namespace via operator-hub.\n## Configuration\n\nThe
+      `bpfman-config` configmap is automatically created in the `bpfman` namespace
+      and used to configure the bpfman deployment.\n\nTo edit the config simply run\n\n```bash\nkubectl
+      edit cm bpfman-config\n```\n\nThe following fields are adjustable\n\n- `bpfman.agent.image`:
+      The image used for the bpfman-agent`\n- `bpfman.image`: The image used for bpfman`\n-
+      `bpfman.log.level`: the log level for bpfman, currently supports `debug`, `info`,
+      `warn`, `error`, and `fatal`, defaults to `info`\n- `bpfman.agent.log.level`:
+      the log level for the bpfman-agent currently supports `info`, `debug`, and `trace`
+      \n\nThe bpfman operator deploys eBPF programs via CRDs. The following CRDs are
+      currently available, \n\n- BpfApplication\n- XdpProgram\n- TcProgram\n - TracepointProgram\n-
+      KprobeProgram\n- UprobeProgram\n- FentryProgram\n- FexitProgram\n\n ## More
+      information\n\nPlease checkout the [bpfman community website](https://bpfman.io/)
+      for more information."
+    displayName: Bpfman Operator
+    installModes:
+    - supported: false
+      type: OwnNamespace
+    - supported: false
+      type: SingleNamespace
+    - supported: false
+      type: MultiNamespace
+    - supported: true
+      type: AllNamespaces
+    keywords:
+    - ebpf
+    - kubernetes
+    labels:
+      operatorframework.io/arch.amd64: supported
+      operatorframework.io/arch.arm64: supported
+      operatorframework.io/arch.ppc64le: supported
+      operatorframework.io/arch.s390x: supported
+    links:
+    - name: bpfman website
+      url: https://bpfman.io/
+    maintainers:
+    - email: astoycos@redhat.com
+      name: Andrew Stoycos
+    - email: afredette@redhat.com
+      name: Andre Fredette
+    maturity: alpha
+    provider:
+      name: The bpfman Community
+      url: https://bpfman.io/
+relatedImages:
+- image: gcr.io/kubebuilder/kube-rbac-proxy:v0.13.0
+  name: ""
+- image: quay.io/bpfman/bpfman-operator-bundle:v0.5.4
+  name: ""
+- image: quay.io/bpfman/bpfman-operator:latest
+  name: ""
+schema: olm.bundle
+---
+image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:36922ea0b333bf60bfd358425681c472db07a99dd07c929383ee3bcc5e93c19f
 name: bpfman-operator.v0.5.7-dev
 package: bpfman-operator
 properties:
@@ -1031,8 +1526,8 @@ properties:
         ]
       capabilities: Basic Install
       categories: OpenShift Optional
-      containerImage: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:ad60f940efd1ad44a51e6c0738b568d4d58ecb644232cbcfc5c04a7769bb2baa
-      createdAt: 17 Oct 2025, 12:11
+      containerImage: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:7a3c4e3bf315ee004833cbbd4e8847b5520afb056fecbe8019528d1f7ef4abf8
+      createdAt: 04 Aug 2025, 08:10
       description: The eBPF manager Operator is designed to manage eBPF programs for
         applications.
       features.operators.openshift.io/cnf: "false"
@@ -1067,8 +1562,8 @@ properties:
         "OpenShift Container Platform", "OpenShift Platform Plus"]'
       operators.operatorframework.io/builder: operator-sdk-v1.27.0
       operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
-      repository: https://github.com/openshift/bpfman-operator
-      support: Red Hat
+      repository: https://github.com/bpfman/bpfman
+      support: bpfman Community
     apiServiceDefinitions: {}
     crdDescriptions:
       owned:
@@ -1096,22 +1591,22 @@ properties:
         name: clusterbpfapplicationstates.bpfman.io
         version: v1alpha1
     description: "The eBPF manager Operator is a Kubernetes Operator for deploying
-      [bpfman](https://github.com/openshift/bpfman-operator), a system daemon\nfor
-      managing eBPF programs. It deploys bpfman itself along with CRDs to make deploying\neBPF
-      programs in Kubernetes much easier.\n\n## Quick Start\n\nTo get bpfman up and
-      running quickly simply click 'install' to deploy the bpfman-operator in the
-      bpfman namespace via operator-hub.\n## Configuration\n\nThe `bpfman-config`
-      configmap is automatically created in the `bpfman` namespace and used to configure
-      the bpfman deployment.\n\nTo edit the config simply run\n\n```bash\nkubectl
-      edit cm bpfman-config\n```\n\nThe following fields are adjustable\n\n- `bpfman.agent.image`:
-      The image used for the bpfman-agent`\n- `bpfman.image`: The image used for bpfman`\n-
-      `bpfman.log.level`: the log level for bpfman, currently supports `debug`, `info`,
-      `warn`, `error`, and `fatal`, defaults to `info`\n- `bpfman.agent.log.level`:
-      the log level for the bpfman-agent currently supports `info`, `debug`, and `trace`
-      \n\nThe bpfman operator deploys eBPF programs via CRDs. The following CRDs are
-      currently available, \n\n- BpfApplication\n- ClusterBpfApplication\n - BpfApplicationState\n-
-      ClusterBpfApplicationState\n\n ## More information\n\nPlease checkout the [bpfman
-      community website](https://bpfman.io/) for more information."
+      [bpfman](https://bpfman.netlify.app/), a system daemon\nfor managing eBPF programs.
+      It deploys bpfman itself along with CRDs to make deploying\neBPF programs in
+      Kubernetes much easier.\n\n## Quick Start\n \nTo get bpfman up and running quickly
+      simply click 'install' to deploy the bpfman-operator in the bpfman namespace
+      via operator-hub.\n## Configuration\n\nThe `bpfman-config` configmap is automatically
+      created in the `bpfman` namespace and used to configure the bpfman deployment.\n\nTo
+      edit the config simply run\n\n```bash\nkubectl edit cm bpfman-config\n```\n\nThe
+      following fields are adjustable\n\n- `bpfman.agent.image`: The image used for
+      the bpfman-agent`\n- `bpfman.image`: The image used for bpfman`\n - `bpfman.log.level`:
+      the log level for bpfman, currently supports `debug`, `info`, `warn`, `error`,
+      and `fatal`, defaults to `info`\n- `bpfman.agent.log.level`: the log level for
+      the bpfman-agent currently supports `info`, `debug`, and `trace` \n\nThe bpfman
+      operator deploys eBPF programs via CRDs. The following CRDs are currently available,
+      \n\n- BpfApplication\n- ClusterBpfApplication\n - BpfApplicationState\n - ClusterBpfApplicationState\n\n
+      ## More information\n\nPlease checkout the [bpfman community website](https://bpfman.io/)
+      for more information."
     displayName: eBPF Manager Operator
     installModes:
     - supported: false
@@ -1145,8 +1640,8 @@ properties:
       name: Red Hat
       url: https://www.redhat.com/
 relatedImages:
-- image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream:latest
+- image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:36922ea0b333bf60bfd358425681c472db07a99dd07c929383ee3bcc5e93c19f
   name: ""
-- image: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:ad60f940efd1ad44a51e6c0738b568d4d58ecb644232cbcfc5c04a7769bb2baa
+- image: registry.redhat.io/bpfman/bpfman-rhel9-operator@sha256:7a3c4e3bf315ee004833cbbd4e8847b5520afb056fecbe8019528d1f7ef4abf8
   name: ""
 schema: olm.bundle
