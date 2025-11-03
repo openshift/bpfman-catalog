@@ -106,6 +106,9 @@ func formatImageResult(img ImageResult) string {
 		b.WriteString("    ✓ Published in downstream registry (registry.redhat.io)\n")
 	case TenantWorkspace:
 		b.WriteString("    ⚠ Only in tenant workspace (not yet published downstream)\n")
+		if img.TenantRef != "" {
+			b.WriteString(fmt.Sprintf("    Source: %s\n", img.TenantRef))
+		}
 	default:
 		b.WriteString("    ✗ Registry status unknown\n")
 	}

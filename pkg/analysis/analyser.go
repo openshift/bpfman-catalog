@@ -30,13 +30,18 @@ func AnalyseBundle(ctx context.Context, bundleRefStr string) (*BundleAnalysis, e
 
 	logrus.Debugf("Parsed bundle ref: %s", bundleRef.String())
 
+	// Detect stream from bundle repository name
+	stream := DetectStreamFromRepo(bundleRef.Repo)
+	logrus.Infof("Detected stream: %s", stream)
+
 	analysis := &BundleAnalysis{
 		BundleRef: bundleRef,
+		Stream:    stream,
 		Images:    []ImageResult{},
 	}
 
 	logrus.Infof("Inspecting bundle metadata from %s", bundleRef.String())
-	bundleInfo, err := extractBundleMetadata(ctx, bundleRef)
+	bundleInfo, err := extractBundleMetadata(ctx, bundleRef, stream)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract bundle metadata: %w", err)
 	}
@@ -52,7 +57,7 @@ func AnalyseBundle(ctx context.Context, bundleRefStr string) (*BundleAnalysis, e
 	imageResults := make([]ImageResult, len(imageRefs))
 	for i, ref := range imageRefs {
 		logrus.Infof("Inspecting image %d/%d: %s", i+1, len(imageRefs), ref)
-		result, err := InspectImage(ctx, ref)
+		result, err := InspectImage(ctx, ref, stream)
 		if err != nil {
 			imageResults[i] = ImageResult{
 				Reference:  ref,
@@ -72,11 +77,11 @@ func AnalyseBundle(ctx context.Context, bundleRefStr string) (*BundleAnalysis, e
 
 // extractBundleMetadata extracts metadata from the bundle image
 // itself.
-func extractBundleMetadata(ctx context.Context, bundleRef ImageRef) (*ImageInfo, error) {
+func extractBundleMetadata(ctx context.Context, bundleRef ImageRef, stream string) (*ImageInfo, error) {
 	var activeRef ImageRef = bundleRef
 	info, err := ExtractImageMetadata(ctx, bundleRef)
 	if err != nil {
-		tenantRef, err := bundleRef.ConvertToTenantWorkspace()
+		tenantRef, err := bundleRef.ConvertToTenantWorkspace(stream)
 		if err != nil {
 			return nil, fmt.Errorf("bundle not accessible and cannot convert to tenant workspace: %w", err)
 		}

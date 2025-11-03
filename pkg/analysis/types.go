@@ -11,6 +11,7 @@ import (
 type BundleAnalysis struct {
 	BundleRef  ImageRef      `json:"bundle_ref"`
 	BundleInfo *ImageInfo    `json:"bundle_info,omitempty"`
+	Stream     string        `json:"stream"` // Stream detected from bundle (ystream/zstream)
 	Images     []ImageResult `json:"images"`
 	Summary    Summary       `json:"summary"`
 }
@@ -18,6 +19,7 @@ type BundleAnalysis struct {
 // ImageResult contains analysis results for a single image.
 type ImageResult struct {
 	Reference  string       `json:"reference"`
+	TenantRef  string       `json:"tenant_ref,omitempty"` // Tenant workspace reference if found there
 	Accessible bool         `json:"accessible"`
 	Registry   RegistryType `json:"registry"`
 	Info       *ImageInfo   `json:"info,omitempty"`
@@ -138,21 +140,51 @@ func ParseImageRef(ref string) (ImageRef, error) {
 	return result, nil
 }
 
+// DetectStreamFromRepo detects the stream (ystream/zstream) from a repository name.
+// Returns "ystream" as default if no stream indicator is found.
+func DetectStreamFromRepo(repo string) string {
+	if strings.Contains(repo, "-zstream") {
+		return "zstream"
+	}
+	if strings.Contains(repo, "-ystream") {
+		return "ystream"
+	}
+	// Default to ystream for backwards compatibility
+	return "ystream"
+}
+
 // ConvertToTenantWorkspace converts a downstream registry reference
-// to tenant workspace.
-func (r ImageRef) ConvertToTenantWorkspace() (ImageRef, error) {
+// to tenant workspace using the specified stream.
+func (r ImageRef) ConvertToTenantWorkspace(stream string) (ImageRef, error) {
 	if r.Registry != "registry.redhat.io" {
 		return ImageRef{}, fmt.Errorf("can only convert downstream registry references")
 	}
 
 	// Convert registry.redhat.io/bpfman/component-name to
-	// quay.io/redhat-user-workloads/ocp-bpfman-tenant/component-name-ystream.
+	// quay.io/redhat-user-workloads/ocp-bpfman-tenant/component-name-{stream}.
 	if !strings.HasPrefix(r.Repo, "bpfman/") {
 		return ImageRef{}, fmt.Errorf("unsupported repository path for tenant conversion: %s", r.Repo)
 	}
 
 	component := strings.TrimPrefix(r.Repo, "bpfman/")
-	tenantRepo := fmt.Sprintf("redhat-user-workloads/ocp-bpfman-tenant/%s-ystream", component)
+
+	// Map downstream component names to tenant workspace names
+	var tenantComponent string
+	switch component {
+	case "bpfman":
+		tenantComponent = fmt.Sprintf("bpfman-daemon-%s", stream)
+	case "bpfman-rhel9-operator":
+		tenantComponent = fmt.Sprintf("bpfman-operator-%s", stream)
+	case "bpfman-agent":
+		tenantComponent = fmt.Sprintf("bpfman-agent-%s", stream)
+	case "bpfman-operator-bundle":
+		tenantComponent = fmt.Sprintf("bpfman-operator-bundle-%s", stream)
+	default:
+		// Fallback: append -{stream}
+		tenantComponent = fmt.Sprintf("%s-%s", component, stream)
+	}
+
+	tenantRepo := fmt.Sprintf("redhat-user-workloads/ocp-bpfman-tenant/%s", tenantComponent)
 
 	return ImageRef{
 		Registry: "quay.io",

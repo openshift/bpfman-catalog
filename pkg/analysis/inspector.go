@@ -11,8 +11,8 @@ import (
 )
 
 // InspectImage performs inspection of a single image reference.
-func InspectImage(ctx context.Context, imageRefStr string) (*ImageResult, error) {
-	logrus.Debugf("InspectImage: %s", imageRefStr)
+func InspectImage(ctx context.Context, imageRefStr string, stream string) (*ImageResult, error) {
+	logrus.Debugf("InspectImage: %s (stream: %s)", imageRefStr, stream)
 
 	imageRef, err := ParseImageRef(imageRefStr)
 	if err != nil {
@@ -47,7 +47,7 @@ func InspectImage(ctx context.Context, imageRefStr string) (*ImageResult, error)
 	}
 
 	logrus.Debugf("Primary inspection failed, attempting tenant workspace conversion")
-	tenantRef, err := imageRef.ConvertToTenantWorkspace()
+	tenantRef, err := imageRef.ConvertToTenantWorkspace(stream)
 	if err != nil {
 		logrus.Debugf("Cannot convert to tenant workspace: %v", err)
 		result.Accessible = false
@@ -60,6 +60,7 @@ func InspectImage(ctx context.Context, imageRefStr string) (*ImageResult, error)
 	if info, err := inspectImageRef(ctx, tenantRef); err == nil {
 		result.Accessible = true
 		result.Registry = TenantWorkspace
+		result.TenantRef = tenantRef.String()
 		result.Info = convertToImageInfo(info)
 		logrus.Debugf("Successfully inspected via tenant workspace: %s", tenantRef.String())
 		return result, nil
