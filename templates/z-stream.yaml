@@ -7,7 +7,10 @@ entries:
     package: bpfman-operator
     name: stable
     entries:
-      - name: bpfman-operator.v0.5.7-dev
-  - schema: olm.bundle
-    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-ystream:latest
-    name: bpfman-operator.v0.5.7-dev
+      - name: bpfman-operator.v0.5.8
+      - name: bpfman-operator.v0.5.9
+        replaces: bpfman-operator.v0.5.8
+  - schema: olm.bundle          # 0.5.8
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:c186f98463c7afda27f8813a1401901f74c9ffe0414980b1dc04a90e057b5bb0
+  - schema: olm.bundle          # 0.5.9
+    image: quay.io/redhat-user-workloads/ocp-bpfman-tenant/bpfman-operator-bundle-zstream:latest
