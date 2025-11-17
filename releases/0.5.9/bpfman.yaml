@@ -1,0 +1,13 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: release-bpfman-0-5-9-2
+  namespace: ocp-bpfman-tenant
+  labels:
+    release.appstudio.openshift.io/author: 'frobware'
+spec:
+  releasePlan: bpfman-zstream
+  snapshot: bpfman-zstream-nk6d4
+  data:
+    releaseNotes:
+      type: RHEA
