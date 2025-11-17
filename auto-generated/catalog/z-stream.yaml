@@ -10,8 +10,6 @@ entries:
 - name: bpfman-operator.v0.5.8
 - name: bpfman-operator.v0.5.9
   replaces: bpfman-operator.v0.5.8
-- name: bpfman-operator.v0.5.10
-  replaces: bpfman-operator.v0.5.9
 name: stable
 package: bpfman-operator
 schema: olm.channel
