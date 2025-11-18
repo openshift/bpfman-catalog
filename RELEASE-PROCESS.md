@@ -336,6 +336,16 @@ make generate-catalogs
 
 This updates `auto-generated/catalog/z-stream.yaml` with the pinned bundle reference.
 
+**Verify the generated file changed**:
+```bash
+git status
+# Should show: modified: auto-generated/catalog/z-stream.yaml
+git diff auto-generated/catalog/z-stream.yaml
+# Should show the bundle reference updated with the registry.redhat.io SHA
+```
+
+If `auto-generated/catalog/z-stream.yaml` is not modified, the template change was not processed correctly.
+
 ### 3.3 Create Pull Request for Z-Stream Update
 
 ```bash
@@ -399,11 +409,31 @@ Also update `templates/released.Dockerfile-args`:
 BUILDVERSION=0.5.9
 ```
 
-### 4.2 Create Pull Request for Released Catalogue
+### 4.2 Regenerate Released Catalogue
+
+**CRITICAL**: After updating the template, you must regenerate the catalog files:
+
+```bash
+make generate-catalogs
+```
+
+This updates `auto-generated/catalog/released.yaml` with the new bundle entry.
+
+**Verify the generated file changed**:
+```bash
+git status
+# Should show: modified: auto-generated/catalog/released.yaml
+git diff auto-generated/catalog/released.yaml
+# Should show the new bundle entry added
+```
+
+If `auto-generated/catalog/released.yaml` is not modified, the template change was not processed correctly.
+
+### 4.3 Create Pull Request for Released Catalogue
 
 ```bash
 git checkout -b releases/0.5.9-catalog upstream/main
-git add templates/released.yaml templates/released.Dockerfile-args
+git add templates/released.yaml templates/released.Dockerfile-args auto-generated/catalog/released.yaml
 git commit -m "Add bpfman-operator version 0.5.9 to released catalog
 
 Update the released catalogue template to include bpfman-operator
@@ -420,7 +450,7 @@ gh pr create --head frobware:releases/0.5.9-catalog --base main \
   --body "..."
 ```
 
-### 4.3 Wait for Released Catalogue Build
+### 4.4 Wait for Released Catalogue Build
 
 After the PR merges, monitor the `catalog-4-20` pipeline:
 
@@ -434,7 +464,7 @@ oc get snapshot -n ocp-bpfman-tenant --sort-by=.metadata.creationTimestamp | gre
 
 Note the snapshot name (e.g., `catalog-4-20-wr5rc`). **This is the snapshot you need for the next step**.
 
-### 4.4 Create Released Catalogue Release Manifest
+### 4.5 Create Released Catalogue Release Manifest
 
 Create `releases/0.5.9/fbc-4.20.yaml` with the `catalog-4-20` snapshot:
 
@@ -448,12 +478,12 @@ metadata:
     release.appstudio.openshift.io/author: 'frobware'
 spec:
   releasePlan: catalog-4-20
-  snapshot: catalog-4-20-wr5rc  # Use the snapshot from step 4.3
+  snapshot: catalog-4-20-wr5rc  # Use the snapshot from step 4.4
 ```
 
 **Important**: The snapshot comes from the `catalog-4-20` pipeline that ran after merging the `templates/released.yaml` changes. You must wait for that pipeline to complete before creating this manifest.
 
-### 4.5 Apply Released Catalogue Release
+### 4.6 Apply Released Catalogue Release
 
 ```bash
 oc apply -f releases/0.5.9/fbc-4.20.yaml
@@ -466,7 +496,7 @@ Monitor the release:
 oc get release -n ocp-bpfman-tenant bpfman-0-5-9-fbc-4-20-0
 ```
 
-### 4.6 Commit Complete Release Ledger
+### 4.7 Commit Complete Release Ledger
 
 After the catalogue release completes successfully, commit the final ledger entry:
 
@@ -750,10 +780,12 @@ For now, **validation with `validate-snapshot.py` is mandatory** to ensure snaps
 - [ ] Apply component release and verify completion
 - [ ] Get released bundle SHA from registry.redhat.io
 - [ ] Update z-stream template with released bundle SHA
-- [ ] Create and merge PR for z-stream catalogue update
+- [ ] Regenerate catalogs and verify auto-generated/catalog/z-stream.yaml changed
+- [ ] Create and merge PR for z-stream catalogue update (include auto-generated file)
 - [ ] Wait for catalog-zstream snapshot
 - [ ] Update released template with new version entry
-- [ ] Create and merge PR for released catalogue update
+- [ ] Regenerate catalogs and verify auto-generated/catalog/released.yaml changed
+- [ ] Create and merge PR for released catalogue update (include auto-generated file)
 - [ ] Wait for catalog-4-20 snapshot
 - [ ] Create and apply catalog-4-20 release manifest
 - [ ] Verify release completion
