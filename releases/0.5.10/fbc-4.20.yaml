@@ -1,0 +1,10 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: bpfman-0-5-10-fbc-4-20-2
+  namespace: ocp-bpfman-tenant
+  labels:
+    release.appstudio.openshift.io/author: 'frobware'
+spec:
+  releasePlan: catalog-4-20
+  snapshot: catalog-4-20-kgqmt
