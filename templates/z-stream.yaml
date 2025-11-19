@@ -14,7 +14,11 @@ entries:
       - name: bpfman-operator.v0.5.8
       - name: bpfman-operator.v0.5.9
         replaces: bpfman-operator.v0.5.8
+      - name: bpfman-operator.v0.5.10
+        replaces: bpfman-operator.v0.5.9
   - schema: olm.bundle          # 0.5.8
     image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:c186f98463c7afda27f8813a1401901f74c9ffe0414980b1dc04a90e057b5bb0
   - schema: olm.bundle          # 0.5.9
     image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:f6177142b9cf34025053d5585054de85d31090126679b4125f5082b1f504e641
+  - schema: olm.bundle          # 0.5.10
+    image: registry.redhat.io/bpfman/bpfman-operator-bundle@sha256:f015580da52da53c9fa9e5629804b9ac6b3026208d271f8d7ac0bd55f887bad7
