@@ -1,8 +1,12 @@
+# OPM container image version. When invoked via the Makefile, this default is overridden by OPM_CONTAINER_VERSION; bumping only the line below will be ignored by make builds.
+ARG OPM_VERSION=v1.69.0
+
 # Use alpine for the build stage with shell support.
 FROM alpine:latest AS builder
+ARG OPM_VERSION
 
 # Install OPM from the official image.
-COPY --from=quay.io/operator-framework/opm:v1.68.0 /bin/opm /bin/opm
+COPY --from=quay.io/operator-framework/opm:${OPM_VERSION} /bin/opm /bin/opm
 
 # Create containers policy configuration. Use standard development policy
 # that matches Fedora's default configuration.

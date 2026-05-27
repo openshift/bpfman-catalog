@@ -21,9 +21,9 @@ export CGO_ENABLED := 0
 
 # Tool versions (for dependency scanning).
 # OPM_VERSION: for local go install (v1.53+ has go install issues, keep at v1.52.0)
-# OPM_CONTAINER_VERSION: for container image in Dockerfile.generate-catalog (can be newer)
+# OPM_CONTAINER_VERSION: passed as a build-arg to Dockerfile.generate-catalog (see the OPM_VERSION ARG there); this Makefile is the single source of truth for the container OPM version.
 OPM_VERSION := v1.52.0
-OPM_CONTAINER_VERSION := v1.60.0
+OPM_CONTAINER_VERSION := v1.69.0
 YQ_VERSION  := v4.35.2
 
 # Pattern rule: install Go tools.
@@ -36,9 +36,6 @@ TOOL_PKG_opm := github.com/operator-framework/operator-registry/cmd/opm
 TOOL_VERSION_opm := $(OPM_VERSION)
 TOOL_PKG_yq := github.com/mikefarah/yq/v4
 TOOL_VERSION_yq := $(YQ_VERSION)
-
-# OPM image for container-based catalog generation.
-OPM_IMAGE := quay.io/operator-framework/opm:$(OPM_CONTAINER_VERSION)
 
 OPM_BIN ?= $(LOCALBIN)/opm
 YQ_BIN  ?= $(LOCALBIN)/yq
@@ -87,6 +84,7 @@ generate-catalogs-container: | auto-generated/catalog ## Generate catalogs using
 		podman build --quiet \
 			--secret id=dockerconfig,src=$${XDG_RUNTIME_DIR}/containers/auth.json \
 			--build-arg TEMPLATE_FILE=$$template_name \
+			--build-arg OPM_VERSION=$(OPM_CONTAINER_VERSION) \
 			-f Dockerfile.generate-catalog -t bpfman-catalog-cli-temp:$$template_name . && \
 		podman create --name bpfman-catalog-cli-temp-$$template_name bpfman-catalog-cli-temp:$$template_name >/dev/null && \
 		podman cp bpfman-catalog-cli-temp-$$template_name:/catalog.yaml $$catalog && \
