@@ -1,0 +1,10 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: bpfman-0-6-0-fbc-4-22-0
+  namespace: ocp-bpfman-tenant
+  labels:
+    release.appstudio.openshift.io/author: 'alebedev87'
+spec:
+  releasePlan: catalog-4-22
+  snapshot: catalog-4-22-20260601-074909-000
