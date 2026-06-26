@@ -191,6 +191,13 @@ spec:
             value: "$(steps.get-unreleased-bundle.results.packageName)"
           - name: channelName
             value: "$(steps.get-unreleased-bundle.results.channelName)"
+        volumes:
+          - name: stage-registry-auth
+            secret:
+              secretName: registry-stage-redhat-io-image-pull-token
+              items:
+                - key: .dockerconfigjson
+                  path: config.json
         steps:
           - name: get-unreleased-bundle
             computeResources:
@@ -223,7 +230,12 @@ spec:
               requests:
                 memory: 512Mi
                 cpu: 100m
+            volumeMounts:
+              - name: stage-registry-auth
+                mountPath: /tekton/home/.docker
             env:
+              - name: DOCKER_CONFIG
+                value: /tekton/home/.docker
               - name: BUNDLE_IMAGE
                 value: "$(steps.get-unreleased-bundle.results.unreleasedBundle)"
             script: |
@@ -313,8 +325,6 @@ spec:
         results:
           - name: ocpVersion
             value: "$(steps.pick-cluster-version.results.ocpVersion)"
-          - name: bundleArch
-            value: "$(steps.pick-cluster-arch.results.bundleArch)"
         steps:
           - name: get-supported-versions
             ref:
@@ -344,19 +354,6 @@ spec:
                 value: "$(tasks.parse-metadata.results.component-container-image)"
               - name: clusterVersions
                 value: ["$(steps.get-supported-versions.results.versions[*])"]
-          - name: pick-cluster-arch
-            ref:
-              resolver: git
-              params:
-                - name: url
-                  value: https://github.com/konflux-ci/tekton-integration-catalog.git
-                - name: revision
-                  value: main
-                - name: pathInRepo
-                  value: stepactions/bundles/pick-cluster-arch/0.1/pick-cluster-arch.yaml
-            params:
-              - name: bundleImage
-                value: "$(tasks.get-unreleased-bundle.results.unreleasedBundle)"
     - name: provision-cluster
       runAfter:
         - pick-cluster-params
@@ -461,6 +458,12 @@ spec:
         volumes:
           - name: credentials
             emptyDir: {}
+          - name: stage-registry-auth
+            secret:
+              secretName: registry-stage-redhat-io-image-pull-token
+              items:
+                - key: .dockerconfigjson
+                  path: config.json
         steps:
           - name: get-kubeconfig
             ref:
@@ -479,6 +482,36 @@ spec:
                 value: $(params.clusterName)
               - name: credentials
                 value: credentials
+          - name: patch-cluster-pull-secret
+            image: quay.io/konflux-ci/konflux-test:v1.4.31@sha256:a7cae9e96663e277a3904d0c78630508ddb6cc8eebaa912a840bd20f68dcaad1
+            computeResources:
+              limits:
+                memory: 512Mi
+              requests:
+                memory: 512Mi
+                cpu: 100m
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+              - name: stage-registry-auth
+                mountPath: /stage-auth
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              echo "[INFO] Creating additional-pull-secret in kube-system with stage registry credentials"
+              oc create secret docker-registry additional-pull-secret \
+                -n kube-system \
+                --from-file=.dockerconfigjson=/stage-auth/config.json \
+                --dry-run=client -o yaml | oc apply -f -
+
+              echo "[INFO] Waiting for pull secret to propagate to nodes"
+              sleep 30
+
+              echo "[INFO] Additional pull secret configured"
           - name: install-operator
             onError: continue
             image: quay.io/konflux-ci/konflux-test:v1.4.31@sha256:a7cae9e96663e277a3904d0c78630508ddb6cc8eebaa912a840bd20f68dcaad1
@@ -499,9 +532,13 @@ spec:
                 value: "$(params.channelName)"
               - name: KUBECONFIG
                 value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: DOCKER_CONFIG
+                value: /tekton/home/.docker
             volumeMounts:
               - name: credentials
                 mountPath: /credentials
+              - name: stage-registry-auth
+                mountPath: /tekton/home/.docker
             script: |
               #!/usr/bin/env bash
               set -euo pipefail
