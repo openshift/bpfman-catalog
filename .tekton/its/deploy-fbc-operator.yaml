@@ -63,6 +63,14 @@ spec:
       name: PATH_TO_MIRROR_SET
       default: ".tekton/images-mirror-set.yaml"
       type: string
+    - description: Git repository URL for the bpfman-operator integration tests
+      name: BPFMAN_OPERATOR_REPO
+      default: "https://github.com/openshift/bpfman-operator.git"
+      type: string
+    - description: Git branch or tag to clone for integration tests
+      name: BPFMAN_OPERATOR_REVISION
+      default: "main"
+      type: string
   tasks:
     - name: parse-metadata
       taskRef:
@@ -183,6 +191,13 @@ spec:
             value: "$(steps.get-unreleased-bundle.results.packageName)"
           - name: channelName
             value: "$(steps.get-unreleased-bundle.results.channelName)"
+        volumes:
+          - name: stage-registry-auth
+            secret:
+              secretName: registry-stage-redhat-io-image-pull-token
+              items:
+                - key: .dockerconfigjson
+                  path: config.json
         steps:
           - name: get-unreleased-bundle
             computeResources:
@@ -215,7 +230,12 @@ spec:
               requests:
                 memory: 512Mi
                 cpu: 100m
+            volumeMounts:
+              - name: stage-registry-auth
+                mountPath: /tekton/home/.docker
             env:
+              - name: DOCKER_CONFIG
+                value: /tekton/home/.docker
               - name: BUNDLE_IMAGE
                 value: "$(steps.get-unreleased-bundle.results.unreleasedBundle)"
             script: |
@@ -305,8 +325,6 @@ spec:
         results:
           - name: ocpVersion
             value: "$(steps.pick-cluster-version.results.ocpVersion)"
-          - name: bundleArch
-            value: "$(steps.pick-cluster-arch.results.bundleArch)"
         steps:
           - name: get-supported-versions
             ref:
@@ -336,19 +354,6 @@ spec:
                 value: "$(tasks.parse-metadata.results.component-container-image)"
               - name: clusterVersions
                 value: ["$(steps.get-supported-versions.results.versions[*])"]
-          - name: pick-cluster-arch
-            ref:
-              resolver: git
-              params:
-                - name: url
-                  value: https://github.com/konflux-ci/tekton-integration-catalog.git
-                - name: revision
-                  value: main
-                - name: pathInRepo
-                  value: stepactions/bundles/pick-cluster-arch/0.1/pick-cluster-arch.yaml
-            params:
-              - name: bundleImage
-                value: "$(tasks.get-unreleased-bundle.results.unreleasedBundle)"
     - name: provision-cluster
       runAfter:
         - pick-cluster-params
@@ -429,7 +434,11 @@ spec:
           value: "$(tasks.get-unreleased-bundle.results.packageName)"
         - name: channelName
           value: "$(tasks.get-unreleased-bundle.results.channelName)"
+      workspaces:
+        - name: shared-data
       taskSpec:
+        workspaces:
+          - name: shared-data
         results:
           - name: imagesPulledAfterDeploymentStart
             description: "Images pulled to the cluster after the deployment start time"
@@ -449,9 +458,12 @@ spec:
         volumes:
           - name: credentials
             emptyDir: {}
-          - name: oci-auth
+          - name: stage-registry-auth
             secret:
-              secretName: $(params.CREDENTIALS_SECRET_NAME)
+              secretName: registry-stage-redhat-io-image-pull-token
+              items:
+                - key: .dockerconfigjson
+                  path: config.json
         steps:
           - name: get-kubeconfig
             ref:
@@ -470,6 +482,36 @@ spec:
                 value: $(params.clusterName)
               - name: credentials
                 value: credentials
+          - name: patch-cluster-pull-secret
+            image: quay.io/konflux-ci/konflux-test:v1.4.31@sha256:a7cae9e96663e277a3904d0c78630508ddb6cc8eebaa912a840bd20f68dcaad1
+            computeResources:
+              limits:
+                memory: 512Mi
+              requests:
+                memory: 512Mi
+                cpu: 100m
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+              - name: stage-registry-auth
+                mountPath: /stage-auth
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              echo "[INFO] Creating additional-pull-secret in kube-system with stage registry credentials"
+              oc create secret docker-registry additional-pull-secret \
+                -n kube-system \
+                --from-file=.dockerconfigjson=/stage-auth/config.json \
+                --dry-run=client -o yaml | oc apply -f -
+
+              echo "[INFO] Waiting for pull secret to propagate to nodes"
+              sleep 30
+
+              echo "[INFO] Additional pull secret configured"
           - name: install-operator
             onError: continue
             image: quay.io/konflux-ci/konflux-test:v1.5.2@sha256:c370a7bc6e172cdbab001f1a19f37ebc95f47c3d8fe2d915fa4641132490ead7
@@ -490,9 +532,13 @@ spec:
                 value: "$(params.channelName)"
               - name: KUBECONFIG
                 value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: DOCKER_CONFIG
+                value: /tekton/home/.docker
             volumeMounts:
               - name: credentials
                 mountPath: /credentials
+              - name: stage-registry-auth
+                mountPath: /tekton/home/.docker
             script: |
               #!/usr/bin/env bash
               set -euo pipefail
@@ -790,6 +836,221 @@ spec:
 
               echo "[$(date --utc +%FT%T.%3NZ)] Script Completed Execution With Failures!"
               exit 1
+          - name: fail-if-any-step-failed
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/tekton-integration-catalog.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/fail-if-any-step-failed/0.1/fail-if-any-step-failed.yaml
+    - name: run-integration-tests
+      runAfter:
+        - deploy-operator
+      when:
+        - input: "$(tasks.get-unreleased-bundle.results.unreleasedBundle)"
+          operator: notin
+          values: [""]
+        - input: $(tasks.parse-metadata.results.test-event-type)
+          operator: in
+          values: ["pull_request", "ok-to-test-comment", "retest-all-comment"]
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: "$(tasks.provision-cluster.results.clusterName)"
+        - name: bpfmanOperatorRepo
+          value: "$(params.BPFMAN_OPERATOR_REPO)"
+        - name: bpfmanOperatorRevision
+          value: "$(params.BPFMAN_OPERATOR_REVISION)"
+      workspaces:
+        - name: shared-data
+      taskSpec:
+        params:
+          - name: eaasSpaceSecretRef
+            type: string
+          - name: clusterName
+            type: string
+          - name: bpfmanOperatorRepo
+            type: string
+          - name: bpfmanOperatorRevision
+            type: string
+        workspaces:
+          - name: shared-data
+        volumes:
+          - name: credentials
+            emptyDir: {}
+        steps:
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
+          - name: install-security-profiles-operator
+            onError: continue
+            image: quay.io/konflux-ci/konflux-test:v1.5.1@sha256:3d766773bba4e99a018b55469c0c2e4276de514ad403839aee6e0a1a34b3d08f
+            computeResources:
+              limits:
+                memory: 512Mi
+              requests:
+                memory: 512Mi
+                cpu: 100m
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              SPO_NS="security-profiles-operator"
+
+              echo "[INFO] Creating namespace ${SPO_NS}"
+              oc create namespace "$SPO_NS" 2>/dev/null || true
+
+              echo "[INFO] Creating OperatorGroup"
+              oc create -f - <<EOF || true
+              apiVersion: operators.coreos.com/v1
+              kind: OperatorGroup
+              metadata:
+                name: security-profiles-operator
+                namespace: $SPO_NS
+              spec:
+                targetNamespaces: []
+              EOF
+
+              echo "[INFO] Creating Subscription for security-profiles-operator"
+              oc create -f - <<EOF
+              apiVersion: operators.coreos.com/v1alpha1
+              kind: Subscription
+              metadata:
+                name: security-profiles-operator
+                namespace: $SPO_NS
+              spec:
+                channel: release-alpha-rhel-8
+                name: security-profiles-operator
+                source: redhat-operators
+                sourceNamespace: openshift-marketplace
+                installPlanApproval: Automatic
+              EOF
+
+              echo "[INFO] Waiting up to 5 minutes for security-profiles-operator CSV to succeed"
+              for _ in $(seq 1 60); do
+                CSV=$(oc -n "$SPO_NS" get subscription security-profiles-operator -o jsonpath="{.status.installedCSV}" 2>/dev/null || true)
+                if [[ -n "$CSV" ]]; then
+                  PHASE=$(oc -n "$SPO_NS" get csv "$CSV" -o jsonpath='{.status.phase}' 2>/dev/null || true)
+                  if [[ "$PHASE" == "Succeeded" ]]; then
+                    echo "[INFO] security-profiles-operator CSV ${CSV} is ready"
+                    exit 0
+                  fi
+                fi
+                sleep 5
+              done
+
+              echo "[ERROR] Timed out waiting for security-profiles-operator to become ready"
+              exit 1
+          - name: run-tests
+            image: quay.io/konflux-ci/konflux-test:v1.5.1@sha256:3d766773bba4e99a018b55469c0c2e4276de514ad403839aee6e0a1a34b3d08f
+            computeResources:
+              limits:
+                memory: 4Gi
+              requests:
+                memory: 4Gi
+                cpu: 500m
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: BPFMAN_OPERATOR_REPO
+                value: "$(params.bpfmanOperatorRepo)"
+              - name: BPFMAN_OPERATOR_REVISION
+                value: "$(params.bpfmanOperatorRevision)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              ln -sf "$(which oc)" /usr/local/bin/kubectl
+
+              echo "[INFO] Cloning ${BPFMAN_OPERATOR_REPO} at ${BPFMAN_OPERATOR_REVISION}"
+              git clone --branch "$BPFMAN_OPERATOR_REVISION" --depth 1 \
+                  "$BPFMAN_OPERATOR_REPO" /tmp/bpfman-operator
+
+              cd /tmp/bpfman-operator
+
+              echo "[INFO] Running integration tests"
+              make test-integration-openshift 2>&1 | tee "$(workspaces.shared-data.path)/integration-test-output.log"
+
+              echo "[INFO] Running lifecycle tests"
+              make test-lifecycle-local 2>&1 | tee "$(workspaces.shared-data.path)/lifecycle-test-output.log"
+          - name: fail-if-any-step-failed
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/tekton-integration-catalog.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/fail-if-any-step-failed/0.1/fail-if-any-step-failed.yaml
+  finally:
+    - name: gather-test-artifacts
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: "$(tasks.provision-cluster.results.clusterName)"
+      workspaces:
+        - name: shared-data
+      taskSpec:
+        params:
+          - name: eaasSpaceSecretRef
+            type: string
+          - name: clusterName
+            type: string
+        workspaces:
+          - name: shared-data
+        volumes:
+          - name: credentials
+            emptyDir: {}
+          - name: oci-auth
+            secret:
+              secretName: $(params.CREDENTIALS_SECRET_NAME)
+        steps:
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
           - name: gather-cluster-resources
             ref:
               resolver: git
@@ -830,13 +1091,3 @@ spec:
                 value: $(params.OCI_REF):$(tasks.parse-metadata.results.source-git-revision)-$(context.taskRun.uid)
               - name: credentials-volume-name
                 value: oci-auth
-          - name: fail-if-any-step-failed
-            ref:
-              resolver: git
-              params:
-                - name: url
-                  value: https://github.com/konflux-ci/tekton-integration-catalog.git
-                - name: revision
-                  value: main
-                - name: pathInRepo
-                  value: stepactions/fail-if-any-step-failed/0.1/fail-if-any-step-failed.yaml
