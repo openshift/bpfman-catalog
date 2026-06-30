@@ -375,6 +375,15 @@ spec:
         results:
           - name: clusterName
             value: "$(steps.create-cluster.results.clusterName)"
+        volumes:
+          - name: credentials
+            emptyDir: {}
+          - name: stage-registry-auth
+            secret:
+              secretName: registry-stage-redhat-io-image-pull-token
+              items:
+                - key: .dockerconfigjson
+                  path: config.json
         steps:
           - name: get-latest-version-tag
             ref:
@@ -411,6 +420,50 @@ spec:
                 value: "m5.large"
               - name: imageContentSourcesFile
                 value: "$(workspaces.shared-data.path)/serializedMirrorSetYaml"
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(tasks.provision-eaas-space.results.secretRef)
+              - name: clusterName
+                value: $(steps.create-cluster.results.clusterName)
+              - name: credentials
+                value: credentials
+          - name: patch-cluster-pull-secret
+            image: quay.io/konflux-ci/konflux-test:v1.5.2@sha256:c370a7bc6e172cdbab001f1a19f37ebc95f47c3d8fe2d915fa4641132490ead7
+            computeResources:
+              limits:
+                memory: 512Mi
+              requests:
+                memory: 512Mi
+                cpu: 100m
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+              - name: stage-registry-auth
+                mountPath: /stage-auth
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              echo "[INFO] Creating additional-pull-secret in kube-system with stage registry credentials"
+              oc create secret docker-registry additional-pull-secret \
+                -n kube-system \
+                --from-file=.dockerconfigjson=/stage-auth/config.json \
+                --dry-run=client -o yaml | oc apply -f -
+
+              echo "[INFO] Additional pull secret configured"
     - name: deploy-operator
       runAfter:
         - provision-cluster
@@ -482,36 +535,6 @@ spec:
                 value: $(params.clusterName)
               - name: credentials
                 value: credentials
-          - name: patch-cluster-pull-secret
-            image: quay.io/konflux-ci/konflux-test:v1.4.31@sha256:a7cae9e96663e277a3904d0c78630508ddb6cc8eebaa912a840bd20f68dcaad1
-            computeResources:
-              limits:
-                memory: 512Mi
-              requests:
-                memory: 512Mi
-                cpu: 100m
-            env:
-              - name: KUBECONFIG
-                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
-            volumeMounts:
-              - name: credentials
-                mountPath: /credentials
-              - name: stage-registry-auth
-                mountPath: /stage-auth
-            script: |
-              #!/usr/bin/env bash
-              set -euo pipefail
-
-              echo "[INFO] Creating additional-pull-secret in kube-system with stage registry credentials"
-              oc create secret docker-registry additional-pull-secret \
-                -n kube-system \
-                --from-file=.dockerconfigjson=/stage-auth/config.json \
-                --dry-run=client -o yaml | oc apply -f -
-
-              echo "[INFO] Waiting for pull secret to propagate to nodes"
-              sleep 30
-
-              echo "[INFO] Additional pull secret configured"
           - name: install-operator
             onError: continue
             image: quay.io/konflux-ci/konflux-test:v1.5.2@sha256:c370a7bc6e172cdbab001f1a19f37ebc95f47c3d8fe2d915fa4641132490ead7
