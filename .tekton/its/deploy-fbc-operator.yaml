@@ -123,7 +123,7 @@ spec:
             description: "Images pulled from the scorecard config YAML."
         steps:
           - name: retrieve-mirror-set-and-scorecard-config
-            image: quay.io/konflux-ci/konflux-test:v1.5.3@sha256:37299834a7a95c042e2d9bc24d0668ccfc8dd4c96baf1339a0f3f46915e91455
+            image: quay.io/konflux-ci/konflux-test:v1.5.7@sha256:b87cecff1a5feee85194b7af0ce6cc507385391d5519816860facd60767d14e6
             computeResources:
               limits:
                 memory: 512Mi
@@ -223,7 +223,7 @@ spec:
               - name: channelName
                 value: $(params.CHANNEL_NAME)
           - name: process-image-mirror-set
-            image: quay.io/konflux-ci/konflux-test:v1.5.3@sha256:37299834a7a95c042e2d9bc24d0668ccfc8dd4c96baf1339a0f3f46915e91455
+            image: quay.io/konflux-ci/konflux-test:v1.5.7@sha256:b87cecff1a5feee85194b7af0ce6cc507385391d5519816860facd60767d14e6
             computeResources:
               limits:
                 memory: 512Mi
@@ -483,7 +483,7 @@ spec:
               - name: credentials
                 value: credentials
           - name: patch-cluster-pull-secret
-            image: quay.io/konflux-ci/konflux-test:v1.5.3@sha256:37299834a7a95c042e2d9bc24d0668ccfc8dd4c96baf1339a0f3f46915e91455
+            image: quay.io/konflux-ci/konflux-test:v1.5.7@sha256:b87cecff1a5feee85194b7af0ce6cc507385391d5519816860facd60767d14e6
             computeResources:
               limits:
                 memory: 512Mi
@@ -514,7 +514,7 @@ spec:
               echo "[INFO] Additional pull secret configured"
           - name: install-operator
             onError: continue
-            image: quay.io/konflux-ci/konflux-test:v1.5.3@sha256:37299834a7a95c042e2d9bc24d0668ccfc8dd4c96baf1339a0f3f46915e91455
+            image: quay.io/konflux-ci/konflux-test:v1.5.7@sha256:b87cecff1a5feee85194b7af0ce6cc507385391d5519816860facd60767d14e6
             computeResources:
               limits:
                 memory: 4Gi
@@ -902,7 +902,7 @@ spec:
                 value: credentials
           - name: install-security-profiles-operator
             onError: continue
-            image: quay.io/konflux-ci/konflux-test:v1.5.3@sha256:727cb3a1ef7dbb66df16dfa6fc850b292386730bbc962329d37f84553d61b5cd
+            image: quay.io/konflux-ci/konflux-test:v1.5.7@sha256:d82174195cf38e74f74d34bf4e9b5fc526a8a442ed6110dbb8b2d54415d64efa
             computeResources:
               limits:
                 memory: 512Mi
@@ -966,7 +966,7 @@ spec:
               echo "[ERROR] Timed out waiting for security-profiles-operator to become ready"
               exit 1
           - name: run-tests
-            image: quay.io/konflux-ci/konflux-test:v1.5.3@sha256:727cb3a1ef7dbb66df16dfa6fc850b292386730bbc962329d37f84553d61b5cd
+            image: quay.io/konflux-ci/konflux-test:v1.5.7@sha256:d82174195cf38e74f74d34bf4e9b5fc526a8a442ed6110dbb8b2d54415d64efa
             computeResources:
               limits:
                 memory: 4Gi
@@ -1069,7 +1069,7 @@ spec:
               - name: artifact-dir
                 value: "/workspace/konflux-artifacts"
           - name: list-artifacts
-            image: quay.io/konflux-ci/konflux-test:v1.5.3@sha256:37299834a7a95c042e2d9bc24d0668ccfc8dd4c96baf1339a0f3f46915e91455
+            image: quay.io/konflux-ci/konflux-test:v1.5.7@sha256:b87cecff1a5feee85194b7af0ce6cc507385391d5519816860facd60767d14e6
             workingDir: "/workspace"
             script: |
               #!/bin/bash
